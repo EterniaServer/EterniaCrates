@@ -19,12 +19,12 @@ public class Table {
                     PRIMARY_KEY +
                             "crate VARCHAR(16), " +
                             "cooldown BIGINT(20), " +
-                            "cratekey BLOB, " +
+                            "cratekey MEDIUMBLOB, " +
                             "location VARCHAR(64))"), false);
             EQueries.executeQuery(PluginConstants.getQueryCreateTable(PluginConfigs.TABLE_ITENS,
                     PRIMARY_KEY +
                             "crate VARCHAR(16), " +
-                            "item BLOB, " +
+                            "item MEDIUMBLOB, " +
                             "chance FLOAT)"), false);
         } else {
             EQueries.executeQuery(PluginConstants.getQueryCreateTable(PluginConfigs.TABLE_USERS,
@@ -32,12 +32,12 @@ public class Table {
                             "cooldown INTEGER)"), false);
             EQueries.executeQuery(PluginConstants.getQueryCreateTable(PluginConfigs.TABLE_CRATES,
                     "(crate VARCHAR(16), " +
-                            "cratekey BLOB, " +
+                            "cratekey MEDIUMBLOB, " +
                             "cooldown INTEGER, " +
                             "location VARCHAR(64))"), false);
             EQueries.executeQuery(PluginConstants.getQueryCreateTable(PluginConfigs.TABLE_ITENS,
                     "(crate VARCHAR(16), " +
-                            "item BLOB, " +
+                            "item MEDIUMBLOB, " +
                             "chance FLOAT)"), false);
         }
 

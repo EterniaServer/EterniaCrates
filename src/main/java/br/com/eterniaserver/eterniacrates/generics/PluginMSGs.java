@@ -25,6 +25,11 @@ public class PluginMSGs {
     public static final String NO_KEY = putPrefix("crates.no-key");
     public static final String KEY_GIVE = putPrefix("crates.key-give");
     public static final String KEY_RECEIVE = putPrefix("crates.key-receive");
+    public static final String LIST_TITLE = putPrefix("crates.list-title");
+    public static final String LIST_ITENS = getColor(EterniaCrates.msgConfig.getString("crates.list-item"));
+    public static final String REMOVE_ITEM = putPrefix("crates.remove-item");
+    public static final String NO_ITEM = putPrefix("crates.no-item");
+    public static final String DELETED = putPrefix("crates.deleted");
 
     private static String putPrefix(String path) {
         String message = EterniaCrates.msgConfig.getString(path);

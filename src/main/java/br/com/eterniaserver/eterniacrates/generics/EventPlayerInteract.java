@@ -6,6 +6,8 @@ import br.com.eterniaserver.eternialib.UUIDFetcher;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -66,6 +68,7 @@ public class EventPlayerInteract implements Listener {
 
         if (hasCooldown(PluginVars.usersCooldown.getOrDefault(UUIDMoreCrateName, 0L), cratesData.getCooldown())) {
             if (player.getInventory().getItemInMainHand().equals(cratesData.getKey())) {
+                player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
                 if (PluginVars.usersCooldown.containsKey(UUIDMoreCrateName)) {
                     EQueries.executeQuery(PluginConstants.getQueryUpdate(PluginConfigs.TABLE_USERS,  "cooldown", System.currentTimeMillis(), "uuid", UUIDMoreCrateName));
                 } else {
@@ -89,6 +92,15 @@ public class EventPlayerInteract implements Listener {
                     return;
                 }
 
+                Location loc = player.getLocation();
+                for (double angle = 0; angle < 2 * Math.PI; angle += 0.2) {
+                    final double x = 2 * Math.cos(angle);
+                    final double z = 2 * Math.sin(angle);
+                    loc.add(x, 1, z);
+                    loc.getWorld().spawnParticle(Particle.BARRIER, loc, 1);
+                    loc.getWorld().playSound(loc, Sound.AMBIENT_UNDERWATER_ENTER, 1f, 1f);
+                    loc.subtract(x, 1, z);
+                }
                 player.sendMessage(PluginMSGs.ITEM_FAIL);
             } else {
                 player.sendMessage(PluginMSGs.NO_KEY);
@@ -99,6 +111,15 @@ public class EventPlayerInteract implements Listener {
     }
 
     private void giveItem(ItemStack itemStack, Player player) {
+        Location loc = player.getLocation();
+        for (double angle = 0; angle < 2 * Math.PI; angle += 0.2) {
+            final double x = 2 * Math.cos(angle);
+            final double z = 2 * Math.sin(angle);
+            loc.add(x, 1, z);
+            loc.getWorld().spawnParticle(Particle.NOTE, loc, 1);
+            loc.getWorld().playSound(loc, Sound.AMBIENT_UNDERWATER_EXIT, 1f, 1f);
+            loc.subtract(x, 1, z);
+        }
         player.getInventory().addItem(itemStack);
         player.sendMessage(PluginMSGs.ITEM_WINNER.replace("%item%", itemStack.getItemMeta().getDisplayName()));
     }

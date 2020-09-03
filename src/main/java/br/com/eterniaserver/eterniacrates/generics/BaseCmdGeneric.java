@@ -18,6 +18,8 @@ import br.com.eterniaserver.eternialib.EterniaLib;
 import br.com.eterniaserver.eternialib.UUIDFetcher;
 import br.com.eterniaserver.eternialib.sql.Connections;
 
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -115,7 +117,7 @@ public class BaseCmdGeneric extends BaseCommand {
         @Description(" Cria uma nova caixa")
         public void onCrateCreate(CommandSender player, String cratesName) {
             if (!PluginVars.cratesNameMap.containsKey(cratesName)) {
-                PluginVars.cratesNameMap.put(cratesName, new CratesData(cratesName));
+                APICrates.createCrate(cratesName);
                 EQueries.executeQuery(PluginConstants.getQueryInsert(PluginConfigs.TABLE_CRATES, "(crate)", "('" + cratesName + "')"));
                 player.sendMessage(PluginMSGs.CREATE);
             } else {
@@ -127,8 +129,8 @@ public class BaseCmdGeneric extends BaseCommand {
         @Syntax("<caixa> <tempo>")
         @Description(" Define o tempo para abrir uma caixa")
         public void onCrateCooldown(CommandSender player, String cratesName, int cooldown) {
-            if (PluginVars.cratesNameMap.containsKey(cratesName)) {
-                final CratesData cratesData = PluginVars.cratesNameMap.get(cratesName);
+            if (APICrates.existsCrate(cratesName)) {
+                final CratesData cratesData = APICrates.getCrate(cratesName);
                 cratesData.setCooldown(cooldown);
                 if (cratesData.getCratesLocation() != null) {
                     PluginVars.cratesDataMap.put(cratesData.getCratesLocation(), cratesData);
@@ -145,7 +147,7 @@ public class BaseCmdGeneric extends BaseCommand {
         @Syntax("<caixa>")
         @Description(" Define a localização de uma caixa")
         public void onCrateLocation(Player player, String cratesName) {
-            if (PluginVars.cratesNameMap.containsKey(cratesName)) {
+            if (APICrates.existsCrate(cratesName)) {
                 PluginVars.cacheSetLoc.put(UUIDFetcher.getUUIDOf(player.getName()), cratesName);
                 player.sendMessage(PluginMSGs.SET_LOC);
             } else {
@@ -247,7 +249,7 @@ public class BaseCmdGeneric extends BaseCommand {
         @Syntax("<caixa> <quantia>")
         @Description(" Dê a todos uma chave de uma caixa")
         public void onGiveKeyAll(CommandSender sender, String cratesName, Integer amount) {
-            if (PluginVars.cratesNameMap.containsKey(cratesName)) {
+            if (APICrates.existsCrate(cratesName)) {
                 ItemStack itemStack = PluginVars.cratesNameMap.get(cratesName).getKey();
                 itemStack.setAmount(amount);
                 for (Player player : Bukkit.getOnlinePlayers()) {
@@ -263,8 +265,76 @@ public class BaseCmdGeneric extends BaseCommand {
         @Subcommand("listitens")
         @Syntax("<caixa>")
         @Description(" Veja cada item que uma caixa possui")
-        public void listItens(Player player, String cratesName) {
+        public void listItens(CommandSender player, String cratesName) {
+            if (APICrates.existsCrate(cratesName)) {
+                final CratesData cratesData = APICrates.getCrate(cratesName);
+                player.sendMessage(PluginMSGs.LIST_TITLE.replace("%crate%", cratesName));
+                cratesData.itensId.forEach((k, v) -> {
+                    HoverEvent event = new HoverEvent(HoverEvent.Action.SHOW_ITEM, Bukkit.getItemFactory().hoverContentOf(v));
+                    String name = v.getItemMeta().getDisplayName();
+                    if (name == null || name.equals("")) {
+                        name = v.getI18NDisplayName();
+                    }
+                    TextComponent component = new TextComponent(PluginMSGs.LIST_ITENS.replace("%id%", k.toString()).replace("%item%", "x" + v.getAmount() + " " + name));
+                    component.setHoverEvent(event);
+                    player.sendMessage(component);
+                });
+            } else {
+                player.sendMessage(PluginMSGs.NO_EXISTS);
+            }
+        }
 
+        @Subcommand("removeitem")
+        @Syntax("<caixa> <id>")
+        @Description(" Remove um item de uma caixa")
+        public void removeItem(CommandSender player, String cratesName, Integer id) {
+            if (APICrates.existsCrate(cratesName)) {
+                final CratesData cratesData = APICrates.getCrate(cratesName);
+                if (cratesData.itensId.containsKey(id)) {
+                    cratesData.getItens().entrySet().removeIf(entry -> (id.equals(entry.getValue())));
+                    cratesData.itensId.remove(id);
+                    if (EterniaLib.getMySQL()) {
+                        EterniaLib.getConnections().executeSQLQuery(connection -> {
+                            final PreparedStatement getHashMap = connection.prepareStatement("DELETE FROM " + PluginConfigs.TABLE_ITENS + " WHERE crate=? AND item=?");
+                            getHashMap.setString(1, cratesName);
+                            getHashMap.setBytes(2, cratesData.itensId.get(id).serializeAsBytes());
+                            getHashMap.execute();
+                            getHashMap.close();
+                        });
+                    } else {
+                        try (PreparedStatement getHashMap = Connections.getSQLite().prepareStatement("DELETE FROM " + PluginConfigs.TABLE_ITENS + " WHERE crate=? AND item=?")) {
+                            getHashMap.setString(1, cratesName);
+                            getHashMap.setBytes(2, cratesData.itensId.get(id).serializeAsBytes());
+                            getHashMap.execute();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    PluginVars.cratesNameMap.put(cratesName, cratesData);
+                    PluginVars.cratesDataMap.put(cratesData.getCratesLocation(), cratesData);
+                    player.sendMessage(PluginMSGs.REMOVE_ITEM);
+                } else {
+                    player.sendMessage(PluginMSGs.NO_ITEM);
+                }
+            } else {
+                player.sendMessage(PluginMSGs.NO_EXISTS);
+            }
+        }
+
+        @Subcommand("removecrate")
+        @Syntax("<caixa> <id>")
+        @Description(" Remove uma caixa")
+        public void removeCaixa(CommandSender sender, String cratesName) {
+            if (APICrates.existsCrate(cratesName)) {
+                String cratesLoc = APICrates.getCrate(cratesName).getCratesLocation();
+                PluginVars.cratesNameMap.remove(cratesName);
+                PluginVars.cratesDataMap.remove(cratesLoc);
+                EQueries.executeQuery(PluginConstants.getQueryDelete(PluginConfigs.TABLE_ITENS, "crate", cratesName));
+                EQueries.executeQuery(PluginConstants.getQueryDelete(PluginConfigs.TABLE_CRATES, "crate", cratesName));
+                sender.sendMessage(PluginMSGs.DELETED);
+            } else {
+                sender.sendMessage(PluginMSGs.NO_EXISTS);
+            }
         }
 
     }
