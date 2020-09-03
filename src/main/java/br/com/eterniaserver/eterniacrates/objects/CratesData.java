@@ -2,16 +2,17 @@ package br.com.eterniaserver.eterniacrates.objects;
 
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
 
 public class CratesData {
 
-    public final Map<Integer, ItemStack> itensId = new HashMap<>();
+    public final List<ItemStack> itensId = new ArrayList<>();
     private Map<Float, ItemStack> itens = new LinkedHashMap<>();
     private final String cratesName;
     private String cratesLocation;
@@ -47,7 +48,7 @@ public class CratesData {
     }
 
     public void addItens(float chance, ItemStack itemStack) {
-        itensId.put(itens.size(), itemStack);
+        itensId.add(itemStack);
         itens.put(chance, itemStack);
     }
 

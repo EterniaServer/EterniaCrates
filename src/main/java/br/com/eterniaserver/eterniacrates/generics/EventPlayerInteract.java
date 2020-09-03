@@ -4,6 +4,9 @@ import br.com.eterniaserver.eterniacrates.objects.CratesData;
 import br.com.eterniaserver.eternialib.EQueries;
 import br.com.eterniaserver.eternialib.UUIDFetcher;
 
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -29,6 +32,35 @@ public class EventPlayerInteract implements Listener {
         final Action action = e.getAction();
         final Player player = e.getPlayer();
 
+        if (action.equals(Action.LEFT_CLICK_BLOCK)) {
+            final Block block = e.getClickedBlock();
+            if (block.getType().equals(Material.CHEST)) {
+                Location loc = block.getLocation();
+                final String saveloc = loc.getWorld().getName() + ":" + ((int) loc.getX()) + ":" + ((int) loc.getY()) +
+                        ":" + ((int) loc.getZ()) + ":" + 0 + ":" + 0;
+                if (PluginVars.cratesDataMap.containsKey(saveloc)) {
+                    final CratesData cratesData = PluginVars.cratesDataMap.get(saveloc);
+                    player.sendMessage(PluginMSGs.LIST_TITLE.replace("%crate%", cratesData.getCratesName()));
+                    int index = 0;
+                    for (ItemStack itemStack : cratesData.itensId) {
+                        HoverEvent event = new HoverEvent(HoverEvent.Action.SHOW_ITEM, Bukkit.getItemFactory().hoverContentOf(itemStack));
+                        String name = "";
+                        if (itemStack.getItemMeta() != null) {
+                            name = itemStack.getItemMeta().getDisplayName();
+                            if (name.equals("")) {
+                                name = itemStack.getI18NDisplayName();
+                            }
+                        }
+                        TextComponent component = new TextComponent(PluginMSGs.LIST_ITENS.replace("%id%", String.valueOf(index)).replace("%item%", "x" + itemStack.getAmount() + " " + name));
+                        component.setHoverEvent(event);
+                        player.sendMessage(component);
+                        index++;
+                    }
+                    e.setCancelled(true);
+                }
+            }
+        }
+
         if (action.equals(Action.RIGHT_CLICK_BLOCK)) {
             final Block block = e.getClickedBlock();
             if (block.getType().equals(Material.CHEST)) {
@@ -37,6 +69,9 @@ public class EventPlayerInteract implements Listener {
                     final String cratesName = PluginVars.cacheSetLoc.get(uuid);
                     PluginVars.cacheSetLoc.remove(uuid);
                     final CratesData cratesData = PluginVars.cratesNameMap.get(cratesName);
+                    if (cratesData.getCratesLocation() != null) {
+                        PluginVars.cratesDataMap.remove(cratesData.getCratesLocation());
+                    }
                     Location loc = block.getLocation();
                     final String saveloc = loc.getWorld().getName() + ":" + ((int) loc.getX()) + ":" + ((int) loc.getY()) +
                             ":" + ((int) loc.getZ()) + ":" + 0 + ":" + 0;

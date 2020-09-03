@@ -269,19 +269,21 @@ public class BaseCmdGeneric extends BaseCommand {
             if (APICrates.existsCrate(cratesName)) {
                 final CratesData cratesData = APICrates.getCrate(cratesName);
                 player.sendMessage(PluginMSGs.LIST_TITLE.replace("%crate%", cratesName));
-                cratesData.itensId.forEach((k, v) -> {
-                    HoverEvent event = new HoverEvent(HoverEvent.Action.SHOW_ITEM, Bukkit.getItemFactory().hoverContentOf(v));
+                int index = 0;
+                for (ItemStack itemStack : cratesData.itensId) {
+                    HoverEvent event = new HoverEvent(HoverEvent.Action.SHOW_ITEM, Bukkit.getItemFactory().hoverContentOf(itemStack));
                     String name = "";
-                    if (v.getItemMeta() != null) {
-                        name = v.getItemMeta().getDisplayName();
+                    if (itemStack.getItemMeta() != null) {
+                        name = itemStack.getItemMeta().getDisplayName();
                         if (name.equals("")) {
-                            name = v.getI18NDisplayName();
+                            name = itemStack.getI18NDisplayName();
                         }
                     }
-                    TextComponent component = new TextComponent(PluginMSGs.LIST_ITENS.replace("%id%", k.toString()).replace("%item%", "x" + v.getAmount() + " " + name));
+                    TextComponent component = new TextComponent(PluginMSGs.LIST_ITENS.replace("%id%", String.valueOf(index)).replace("%item%", "x" + itemStack.getAmount() + " " + name));
                     component.setHoverEvent(event);
                     player.sendMessage(component);
-                });
+                    index++;
+                }
             } else {
                 player.sendMessage(PluginMSGs.NO_EXISTS);
             }
@@ -293,8 +295,8 @@ public class BaseCmdGeneric extends BaseCommand {
         public void removeItem(CommandSender player, String cratesName, Integer id) {
             if (APICrates.existsCrate(cratesName)) {
                 final CratesData cratesData = APICrates.getCrate(cratesName);
-                if (cratesData.itensId.containsKey(id)) {
-                    cratesData.getItens().entrySet().removeIf(entry -> (id.equals(entry.getValue())));
+                if (cratesData.itensId.get(id) != null) {
+                        cratesData.getItens().entrySet().removeIf(entry -> (cratesData.itensId.get(id).equals(entry.getValue())));
                     if (EterniaLib.getMySQL()) {
                         EterniaLib.getConnections().executeSQLQuery(connection -> {
                             final PreparedStatement getHashMap = connection.prepareStatement("DELETE FROM " + PluginConfigs.TABLE_ITENS + " WHERE crate=? AND item=?");
@@ -312,7 +314,7 @@ public class BaseCmdGeneric extends BaseCommand {
                             e.printStackTrace();
                         }
                     }
-                    cratesData.itensId.remove(id);
+                    cratesData.itensId.remove(cratesData.itensId.get(id));
                     PluginVars.cratesNameMap.put(cratesName, cratesData);
                     PluginVars.cratesDataMap.put(cratesData.getCratesLocation(), cratesData);
                     player.sendMessage(PluginMSGs.REMOVE_ITEM);
