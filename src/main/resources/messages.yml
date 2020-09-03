@@ -1,0 +1,17 @@
+server:
+  prefix: '&8[&aE&9C&8] '
+crates:
+  winner: '&7Parabéns você ganhou &3%item% &7na caixa&8.'
+  item-fail: '&7Você não ganhou nada&8.'
+  cooldown: '&7Você ainda não pode abrir essa caixa&8.'
+  create: '&7Caixa criada com sucesso&8.'
+  already: '&7Essa caixa já existe&8.'
+  no-exists: '&7Essa caixa não existe&8.'
+  set-loc: '&7Para definir a localização clique em um báu&8.'
+  loc-seted: '&7Localização da caixa definida com sucesso&8.'
+  item-add: '&7Item adicionado com sucesso&8.'
+  key-set: '&7Chave definida com sucesso&8.'
+  cooldown-set: '&7Tempo para abrir definido com sucesso&8.'
+  no-key: '&7Você não possui uma chave&8.'
+  key-give: '&7Você deu uma chave para o jogador&8.'
+  key-receive: '&7Você recebeu uma chave&8.'
