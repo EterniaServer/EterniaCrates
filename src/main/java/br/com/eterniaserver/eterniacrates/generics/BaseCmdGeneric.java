@@ -271,9 +271,12 @@ public class BaseCmdGeneric extends BaseCommand {
                 player.sendMessage(PluginMSGs.LIST_TITLE.replace("%crate%", cratesName));
                 cratesData.itensId.forEach((k, v) -> {
                     HoverEvent event = new HoverEvent(HoverEvent.Action.SHOW_ITEM, Bukkit.getItemFactory().hoverContentOf(v));
-                    String name = v.getItemMeta().getDisplayName();
-                    if (name == null || name.equals("")) {
-                        name = v.getI18NDisplayName();
+                    String name = "";
+                    if (v.getItemMeta() != null) {
+                        name = v.getItemMeta().getDisplayName();
+                        if (name.equals("")) {
+                            name = v.getI18NDisplayName();
+                        }
                     }
                     TextComponent component = new TextComponent(PluginMSGs.LIST_ITENS.replace("%id%", k.toString()).replace("%item%", "x" + v.getAmount() + " " + name));
                     component.setHoverEvent(event);
@@ -292,7 +295,6 @@ public class BaseCmdGeneric extends BaseCommand {
                 final CratesData cratesData = APICrates.getCrate(cratesName);
                 if (cratesData.itensId.containsKey(id)) {
                     cratesData.getItens().entrySet().removeIf(entry -> (id.equals(entry.getValue())));
-                    cratesData.itensId.remove(id);
                     if (EterniaLib.getMySQL()) {
                         EterniaLib.getConnections().executeSQLQuery(connection -> {
                             final PreparedStatement getHashMap = connection.prepareStatement("DELETE FROM " + PluginConfigs.TABLE_ITENS + " WHERE crate=? AND item=?");
@@ -310,6 +312,7 @@ public class BaseCmdGeneric extends BaseCommand {
                             e.printStackTrace();
                         }
                     }
+                    cratesData.itensId.remove(id);
                     PluginVars.cratesNameMap.put(cratesName, cratesData);
                     PluginVars.cratesDataMap.put(cratesData.getCratesLocation(), cratesData);
                     player.sendMessage(PluginMSGs.REMOVE_ITEM);
