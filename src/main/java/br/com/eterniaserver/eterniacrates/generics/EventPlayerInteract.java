@@ -121,7 +121,11 @@ public class EventPlayerInteract implements Listener {
             loc.subtract(x, 1, z);
         }
         player.getInventory().addItem(itemStack);
-        player.sendMessage(PluginMSGs.ITEM_WINNER.replace("%item%", itemStack.getItemMeta().getDisplayName()));
+        String name = itemStack.getItemMeta().getDisplayName();
+        if (name == null || name.equals("")) {
+            name = itemStack.getI18NDisplayName();
+        }
+        player.sendMessage(PluginMSGs.ITEM_WINNER.replace("%item%", name));
     }
 
     private boolean hasCooldown(long cooldown, int timeNeeded) {
