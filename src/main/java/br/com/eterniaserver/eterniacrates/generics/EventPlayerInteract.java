@@ -66,8 +66,12 @@ public class EventPlayerInteract implements Listener {
 
         if (hasCooldown(PluginVars.usersCooldown.getOrDefault(UUIDMoreCrateName, 0L), cratesData.getCooldown())) {
             if (player.getInventory().getItemInMainHand().equals(cratesData.getKey())) {
+                if (PluginVars.usersCooldown.containsKey(UUIDMoreCrateName)) {
+                    EQueries.executeQuery(PluginConstants.getQueryUpdate(PluginConfigs.TABLE_USERS,  "cooldown", System.currentTimeMillis(), "uuid", UUIDMoreCrateName));
+                } else {
+                    EQueries.executeQuery(PluginConstants.getQueryInsert(PluginConfigs.TABLE_USERS, "(uuid, cooldown)", "('" + UUIDMoreCrateName + "', '" + System.currentTimeMillis() + "')"));
+                }
                 PluginVars.usersCooldown.put(UUIDMoreCrateName, System.currentTimeMillis());
-                EQueries.executeQuery(PluginConstants.getQueryUpdate(PluginConfigs.TABLE_USERS,  "cooldown", System.currentTimeMillis(), "uuid", UUIDFetcher.getUUIDOf(player.getName()).toString()));
                 ItemStack itemStack = null;
                 AtomicReference<Float> lowestNumberAboveRandom = new AtomicReference<>(100.0f);
                 Map<Float, ItemStack> itens = cratesData.getItens();
