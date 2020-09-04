@@ -13,7 +13,7 @@ import static java.util.stream.Collectors.toMap;
 public class CratesData {
 
     public final List<ItemStack> itensId = new ArrayList<>();
-    private Map<Float, ItemStack> itens = new LinkedHashMap<>();
+    private Map<Double, ItemStack> itens = new LinkedHashMap<>();
     private final String cratesName;
     private String cratesLocation;
     private ItemStack key;
@@ -43,11 +43,11 @@ public class CratesData {
         this.key = key;
     }
 
-    public Map<Float, ItemStack> getItens() {
+    public Map<Double, ItemStack> getItens() {
         return itens;
     }
 
-    public void addItens(float chance, ItemStack itemStack) {
+    public void addItens(Double chance, ItemStack itemStack) {
         itensId.add(itemStack);
         itens.put(chance, itemStack);
     }

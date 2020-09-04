@@ -23,7 +23,7 @@ public class EterniaCrates extends JavaPlugin {
         files.loadDatabase();
 
         EterniaLib.getManager().enableUnstableAPI("help");
-        EterniaLib.getManager().getCommandConditions().addCondition(Float.class, "limits", (c, exec, value) -> {
+        EterniaLib.getManager().getCommandConditions().addCondition(Double.class, "limits", (c, exec, value) -> {
             if (value == null) {
                 return;
             }
@@ -34,6 +34,7 @@ public class EterniaCrates extends JavaPlugin {
                 throw new ConditionFailedException("O valor máximo precisa ser &3 " + c.getConfigValue("max", 3));
             }
         });
+
         EterniaLib.getManager().registerCommand(new BaseCmdGeneric());
         getServer().getPluginManager().registerEvents(new EventPlayerInteract(), this);
 

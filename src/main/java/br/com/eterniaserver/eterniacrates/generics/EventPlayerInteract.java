@@ -2,10 +2,12 @@ package br.com.eterniaserver.eterniacrates.generics;
 
 import br.com.eterniaserver.eterniacrates.objects.CratesData;
 import br.com.eterniaserver.eternialib.EQueries;
+import br.com.eterniaserver.eternialib.NBTItem;
 import br.com.eterniaserver.eternialib.UUIDFetcher;
 
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -41,21 +43,19 @@ public class EventPlayerInteract implements Listener {
                 if (PluginVars.cratesDataMap.containsKey(saveloc)) {
                     final CratesData cratesData = PluginVars.cratesDataMap.get(saveloc);
                     player.sendMessage(PluginMSGs.LIST_TITLE.replace("%crate%", cratesData.getCratesName()));
-                    int index = 0;
-                    for (ItemStack itemStack : cratesData.itensId) {
-                        HoverEvent event = new HoverEvent(HoverEvent.Action.SHOW_ITEM, Bukkit.getItemFactory().hoverContentOf(itemStack));
+                    cratesData.getItens().forEach((k, v) -> {
+                        HoverEvent event = new HoverEvent(HoverEvent.Action.SHOW_ITEM, Bukkit.getItemFactory().hoverContentOf(v));
                         String name = "";
-                        if (itemStack.getItemMeta() != null) {
-                            name = itemStack.getItemMeta().getDisplayName();
+                        if (v.getItemMeta() != null) {
+                            name = v.getItemMeta().getDisplayName();
                             if (name.equals("")) {
-                                name = itemStack.getI18NDisplayName();
+                                name = v.getI18NDisplayName();
                             }
                         }
-                        TextComponent component = new TextComponent(PluginMSGs.LIST_ITENS.replace("%id%", String.valueOf(index)).replace("%item%", "x" + itemStack.getAmount() + " " + name));
+                        TextComponent component = new TextComponent(PluginMSGs.LIST_ITENS.replace("%id%", String.valueOf(k)).replace("%item%", "x" + v.getAmount() + " " + name));
                         component.setHoverEvent(event);
                         player.sendMessage(component);
-                        index++;
-                    }
+                    });
                     e.setCancelled(true);
                 }
             }
@@ -86,24 +86,31 @@ public class EventPlayerInteract implements Listener {
                     final String saveloc = loc.getWorld().getName() + ":" + ((int) loc.getX()) + ":" + ((int) loc.getY()) +
                             ":" + ((int) loc.getZ()) + ":" + 0 + ":" + 0;
                     if (PluginVars.cratesDataMap.containsKey(saveloc)) {
-                        isCrate(saveloc, player);
+                        isCrate(saveloc, player, block.getLocation());
                         e.setCancelled(true);
                     }
                 }
+            } else if (new NBTItem(player.getInventory().getItemInMainHand()).hasKey("EterniaKey")) {
             }
         }
     }
 
-    private void isCrate(String location, Player player) {
-        float max = 99.9f;
-        float min = 0.00f;
-        double random = min + Math.random() * (max - min);
+    private void isCrate(String location, Player player, Location locationC) {
         final CratesData cratesData = PluginVars.cratesDataMap.get(location);
         final String UUIDMoreCrateName = UUIDFetcher.getUUIDOf(player.getName()) + "." + cratesData.getCratesName();
 
         if (hasCooldown(PluginVars.usersCooldown.getOrDefault(UUIDMoreCrateName, 0L), cratesData.getCooldown())) {
-            if (player.getInventory().getItemInMainHand().equals(cratesData.getKey())) {
-                player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+            ItemStack key = player.getInventory().getItemInMainHand();
+            int amount = key.getAmount();
+            key.setAmount(1);
+            if (key.equals(cratesData.getKey())) {
+                if (amount > 1) {
+                    player.getInventory().remove(key);
+                    key.setAmount(amount - 1);
+                    player.getInventory().setItemInMainHand(key);
+                } else {
+                    player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+                }
                 if (PluginVars.usersCooldown.containsKey(UUIDMoreCrateName)) {
                     EQueries.executeQuery(PluginConstants.getQueryUpdate(PluginConfigs.TABLE_USERS,  "cooldown", System.currentTimeMillis(), "uuid", UUIDMoreCrateName));
                 } else {
@@ -111,30 +118,32 @@ public class EventPlayerInteract implements Listener {
                 }
                 PluginVars.usersCooldown.put(UUIDMoreCrateName, System.currentTimeMillis());
                 ItemStack itemStack = null;
-                AtomicReference<Float> lowestNumberAboveRandom = new AtomicReference<>(100.0f);
-                Map<Float, ItemStack> itens = cratesData.getItens();
+                AtomicReference<Double> lowestNumberAboveRandom = new AtomicReference<>(1.1);
+                Map<Double, ItemStack> itens = cratesData.getItens();
                 itens.forEach((k, v) -> {
-                    if (k < lowestNumberAboveRandom.get() && k > random) {
+                    if (k < lowestNumberAboveRandom.get() && k > Math.random()) {
                         lowestNumberAboveRandom.set(k);
                     }
                 });
-                if (lowestNumberAboveRandom.get() < 100.0f) {
+                if (lowestNumberAboveRandom.get() < 1.0) {
                     itemStack = itens.get(lowestNumberAboveRandom.get());
                 }
 
                 if (itemStack != null) {
-                    giveItem(itemStack, player);
+                    giveItem(itemStack, player, locationC);
                     return;
                 }
 
-                Location loc = player.getLocation();
+                double xx = locationC.getX();
+                double zz = locationC.getZ();
+                locationC.add(xx > 0 ? 0.5 : -0.5, 0.0, zz > 0 ? 0.5 : -0.5);
                 for (double angle = 0; angle < 2 * Math.PI; angle += 0.2) {
                     final double x = 2 * Math.cos(angle);
                     final double z = 2 * Math.sin(angle);
-                    loc.add(x, 1, z);
-                    loc.getWorld().spawnParticle(Particle.BARRIER, loc, 1);
-                    loc.getWorld().playSound(loc, Sound.AMBIENT_UNDERWATER_ENTER, 1f, 1f);
-                    loc.subtract(x, 1, z);
+                    locationC.add(x, 1, z);
+                    locationC.getWorld().spawnParticle(Particle.VILLAGER_ANGRY, locationC, 1);
+                    locationC.getWorld().playSound(locationC, Sound.AMBIENT_UNDERWATER_EXIT, 1f, 1f);
+                    locationC.subtract(x, 1, z);
                 }
                 player.sendMessage(PluginMSGs.ITEM_FAIL);
             } else {
@@ -145,22 +154,24 @@ public class EventPlayerInteract implements Listener {
         }
     }
 
-    private void giveItem(ItemStack itemStack, Player player) {
-        Location loc = player.getLocation();
+    private void giveItem(ItemStack itemStack, Player player, Location location) {
+        double xx = location.getX();
+        double zz = location.getZ();
+        location.add(xx > 0 ? 0.5 : -0.5, 0.0, zz > 0 ? 0.5 : -0.5);
         for (double angle = 0; angle < 2 * Math.PI; angle += 0.2) {
             final double x = 2 * Math.cos(angle);
             final double z = 2 * Math.sin(angle);
-            loc.add(x, 1, z);
-            loc.getWorld().spawnParticle(Particle.NOTE, loc, 1);
-            loc.getWorld().playSound(loc, Sound.AMBIENT_UNDERWATER_EXIT, 1f, 1f);
-            loc.subtract(x, 1, z);
+            location.add(x, 1, z);
+            location.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, location, 1);
+            location.getWorld().playSound(location, Sound.AMBIENT_UNDERWATER_EXIT, 1f, 1f);
+            location.subtract(x, 1, z);
         }
         player.getInventory().addItem(itemStack);
         String name = itemStack.getItemMeta().getDisplayName();
         if (name == null || name.equals("")) {
             name = itemStack.getI18NDisplayName();
         }
-        player.sendMessage(PluginMSGs.ITEM_WINNER.replace("%item%", name));
+        player.sendMessage(PluginMSGs.ITEM_WINNER.replace("%item%", "x" + itemStack.getAmount() + " " + name));
     }
 
     private boolean hasCooldown(long cooldown, int timeNeeded) {

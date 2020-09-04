@@ -25,7 +25,7 @@ public class Table {
                     PRIMARY_KEY +
                             "crate VARCHAR(16), " +
                             "item MEDIUMBLOB, " +
-                            "chance FLOAT)"), false);
+                            "chance DOUBLE)"), false);
         } else {
             EQueries.executeQuery(PluginConstants.getQueryCreateTable(PluginConfigs.TABLE_USERS,
                     "(uuid VARCHAR(36), " +
@@ -38,7 +38,7 @@ public class Table {
             EQueries.executeQuery(PluginConstants.getQueryCreateTable(PluginConfigs.TABLE_ITENS,
                     "(crate VARCHAR(16), " +
                             "item MEDIUMBLOB, " +
-                            "chance FLOAT)"), false);
+                            "chance DOUBLE)"), false);
         }
 
     }

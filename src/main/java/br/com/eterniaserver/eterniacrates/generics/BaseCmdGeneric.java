@@ -15,6 +15,7 @@ import br.com.eterniaserver.acf.bukkit.contexts.OnlinePlayer;
 import br.com.eterniaserver.eterniacrates.objects.CratesData;
 import br.com.eterniaserver.eternialib.EQueries;
 import br.com.eterniaserver.eternialib.EterniaLib;
+import br.com.eterniaserver.eternialib.NBTItem;
 import br.com.eterniaserver.eternialib.UUIDFetcher;
 import br.com.eterniaserver.eternialib.sql.Connections;
 
@@ -72,7 +73,7 @@ public class BaseCmdGeneric extends BaseCommand {
             final String cratesName = resultSet.getString("crate");
             final CratesData cratesData = PluginVars.cratesNameMap.get(cratesName);
             final byte[] bytes = resultSet.getBytes("item");
-            final float chance = resultSet.getFloat("chance");
+            final double chance = resultSet.getDouble("chance");
             cratesData.addItens(chance, ItemStack.deserializeBytes(bytes));
             cratesData.sort();
             if (cratesData.getCratesLocation() != null) {
@@ -119,9 +120,9 @@ public class BaseCmdGeneric extends BaseCommand {
             if (!PluginVars.cratesNameMap.containsKey(cratesName)) {
                 APICrates.createCrate(cratesName);
                 EQueries.executeQuery(PluginConstants.getQueryInsert(PluginConfigs.TABLE_CRATES, "(crate)", "('" + cratesName + "')"));
-                player.sendMessage(PluginMSGs.CREATE);
+                player.sendMessage(PluginMSGs.CREATE.replace("%crate%", cratesName));
             } else {
-                player.sendMessage(PluginMSGs.ALREADY);
+                player.sendMessage(PluginMSGs.ALREADY.replace("%crate%", cratesName));
             }
         }
 
@@ -137,9 +138,9 @@ public class BaseCmdGeneric extends BaseCommand {
                 }
                 PluginVars.cratesNameMap.put(cratesName, cratesData);
                 EQueries.executeQuery(PluginConstants.getQueryUpdate(PluginConfigs.TABLE_CRATES,  "cooldown", cooldown, "crate", cratesName));
-                player.sendMessage(PluginMSGs.COOLDOWN_SET);
+                player.sendMessage(PluginMSGs.COOLDOWN_SET.replace("%time%", String.valueOf(cooldown)));
             } else {
-                player.sendMessage(PluginMSGs.NO_EXISTS);
+                player.sendMessage(PluginMSGs.NO_EXISTS.replace("%crate%", cratesName));
             }
         }
 
@@ -151,14 +152,14 @@ public class BaseCmdGeneric extends BaseCommand {
                 PluginVars.cacheSetLoc.put(UUIDFetcher.getUUIDOf(player.getName()), cratesName);
                 player.sendMessage(PluginMSGs.SET_LOC);
             } else {
-                player.sendMessage(PluginMSGs.NO_EXISTS);
+                player.sendMessage(PluginMSGs.NO_EXISTS.replace("%crate%", cratesName));
             }
         }
 
         @Subcommand("putitem")
         @Syntax("<caixa> <chance>")
         @Description(" Adiciona o item da sua mão a uma caixa")
-        public void onCrateAddItem(Player player, String cratesName, @Conditions("limits:min=1,max=100") Float chance) {
+        public void onCrateAddItem(Player player, String cratesName, @Conditions("limits:min=0,max=1") Double chance) {
             if (PluginVars.cratesNameMap.containsKey(cratesName)) {
                 final CratesData cratesData = PluginVars.cratesNameMap.get(cratesName);
                 ItemStack itemStack = player.getInventory().getItemInMainHand();
@@ -173,7 +174,7 @@ public class BaseCmdGeneric extends BaseCommand {
                         final PreparedStatement getHashMap = connection.prepareStatement("INSERT INTO " + PluginConfigs.TABLE_ITENS + " (crate, `item`, chance) VALUES (?, ?, ?)");
                         getHashMap.setString(1, cratesName);
                         getHashMap.setBytes(2, itemStack.serializeAsBytes());
-                        getHashMap.setFloat(3, chance);
+                        getHashMap.setDouble(3, chance);
                         getHashMap.execute();
                         getHashMap.close();
                     });
@@ -181,7 +182,7 @@ public class BaseCmdGeneric extends BaseCommand {
                     try (PreparedStatement getHashMap = Connections.getSQLite().prepareStatement("INSERT INTO " + PluginConfigs.TABLE_ITENS + " (crate, `item`, chance) VALUES (?, ?, ?)")) {
                         getHashMap.setString(1, cratesName);
                         getHashMap.setBytes(2, itemStack.serializeAsBytes());
-                        getHashMap.setFloat(3, chance);
+                        getHashMap.setDouble(3, chance);
                         getHashMap.execute();
                     } catch (SQLException e) {
                         e.printStackTrace();
@@ -189,7 +190,7 @@ public class BaseCmdGeneric extends BaseCommand {
                 }
                 player.sendMessage(PluginMSGs.ITEM_ADD);
             } else {
-                player.sendMessage(PluginMSGs.NO_EXISTS);
+                player.sendMessage(PluginMSGs.NO_EXISTS.replace("%crate%", cratesName));
             }
         }
 
@@ -199,7 +200,11 @@ public class BaseCmdGeneric extends BaseCommand {
         public void onCrateSetKey(Player player, String cratesName) {
             if (PluginVars.cratesNameMap.containsKey(cratesName)) {
                 final CratesData cratesData = PluginVars.cratesNameMap.get(cratesName);
-                ItemStack itemStack = player.getInventory().getItemInMainHand();
+                ItemStack tempitem = player.getInventory().getItemInMainHand();
+                NBTItem item = new NBTItem(tempitem);
+                item.setString("EterniaKey", cratesName);
+                final ItemStack itemStack = item.getItem();
+                player.getInventory().setItemInMainHand(itemStack);
                 cratesData.setKey(itemStack);
                 if (EterniaLib.getMySQL()) {
                     EterniaLib.getConnections().executeSQLQuery(connection -> {
@@ -224,7 +229,7 @@ public class BaseCmdGeneric extends BaseCommand {
                 }
                 player.sendMessage(PluginMSGs.KEY_SET);
             } else {
-                player.sendMessage(PluginMSGs.NO_EXISTS);
+                player.sendMessage(PluginMSGs.NO_EXISTS.replace("%crate%", cratesName));
             }
         }
 
@@ -241,7 +246,7 @@ public class BaseCmdGeneric extends BaseCommand {
                 sender.sendMessage(PluginMSGs.KEY_GIVE);
                 player.sendMessage(PluginMSGs.KEY_RECEIVE);
             } else {
-                sender.sendMessage(PluginMSGs.NO_EXISTS);
+                player.sendMessage(PluginMSGs.NO_EXISTS.replace("%crate%", cratesName));
             }
         }
 
@@ -258,7 +263,7 @@ public class BaseCmdGeneric extends BaseCommand {
                 }
                 sender.sendMessage(PluginMSGs.KEY_GIVE);
             } else {
-                sender.sendMessage(PluginMSGs.NO_EXISTS);
+                sender.sendMessage(PluginMSGs.NO_EXISTS.replace("%crate%", cratesName));
             }
         }
 
@@ -285,7 +290,32 @@ public class BaseCmdGeneric extends BaseCommand {
                     index++;
                 }
             } else {
-                player.sendMessage(PluginMSGs.NO_EXISTS);
+                player.sendMessage(PluginMSGs.NO_EXISTS.replace("%crate%", cratesName));
+            }
+        }
+
+        @Subcommand("chance")
+        @Syntax("<caixa>")
+        @Description(" Chance de cada item")
+        public void onChance(CommandSender sender, String cratesName) {
+            if (APICrates.existsCrate(cratesName)) {
+                final CratesData cratesData = APICrates.getCrate(cratesName);
+                sender.sendMessage(PluginMSGs.LIST_TITLE.replace("%crate%", cratesName));
+                cratesData.getItens().forEach((k, v) -> {
+                    HoverEvent event = new HoverEvent(HoverEvent.Action.SHOW_ITEM, Bukkit.getItemFactory().hoverContentOf(v));
+                    String name = "";
+                    if (v.getItemMeta() != null) {
+                        name = v.getItemMeta().getDisplayName();
+                        if (name.equals("")) {
+                            name = v.getI18NDisplayName();
+                        }
+                    }
+                    TextComponent component = new TextComponent(PluginMSGs.LIST_ITENS.replace("%id%", String.valueOf(k)).replace("%item%", "x" + v.getAmount() + " " + name));
+                    component.setHoverEvent(event);
+                    sender.sendMessage(component);
+                });
+            } else {
+                sender.sendMessage(PluginMSGs.NO_EXISTS.replace("%crate%", cratesName));
             }
         }
 
@@ -322,7 +352,7 @@ public class BaseCmdGeneric extends BaseCommand {
                     player.sendMessage(PluginMSGs.NO_ITEM);
                 }
             } else {
-                player.sendMessage(PluginMSGs.NO_EXISTS);
+                player.sendMessage(PluginMSGs.NO_EXISTS.replace("%crate%", cratesName));
             }
         }
 
@@ -338,7 +368,7 @@ public class BaseCmdGeneric extends BaseCommand {
                 EQueries.executeQuery(PluginConstants.getQueryDelete(PluginConfigs.TABLE_CRATES, "crate", cratesName));
                 sender.sendMessage(PluginMSGs.DELETED);
             } else {
-                sender.sendMessage(PluginMSGs.NO_EXISTS);
+                sender.sendMessage(PluginMSGs.NO_EXISTS.replace("%crate%", cratesName));
             }
         }
 
