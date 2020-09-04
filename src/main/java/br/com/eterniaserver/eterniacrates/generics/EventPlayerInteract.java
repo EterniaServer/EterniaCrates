@@ -166,7 +166,7 @@ public class EventPlayerInteract implements Listener {
             location.getWorld().playSound(location, Sound.AMBIENT_UNDERWATER_EXIT, 1f, 1f);
             location.subtract(x, 1, z);
         }
-        player.getInventory().addItem(itemStack);
+        player.getInventory().addItem(new ItemStack(itemStack));
         String name = itemStack.getItemMeta().getDisplayName();
         if (name == null || name.equals("")) {
             name = itemStack.getI18NDisplayName();

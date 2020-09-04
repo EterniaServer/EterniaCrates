@@ -240,7 +240,7 @@ public class BaseCmdGeneric extends BaseCommand {
         public void onGiveKey(CommandSender sender, OnlinePlayer onlinePlayer, String cratesName, Integer amount) {
             Player player = onlinePlayer.getPlayer();
             if (PluginVars.cratesNameMap.containsKey(cratesName)) {
-                ItemStack itemStack = PluginVars.cratesNameMap.get(cratesName).getKey();
+                ItemStack itemStack = new ItemStack(PluginVars.cratesNameMap.get(cratesName).getKey());
                 itemStack.setAmount(amount);
                 player.getInventory().addItem(itemStack);
                 sender.sendMessage(PluginMSGs.KEY_GIVE);
@@ -255,10 +255,10 @@ public class BaseCmdGeneric extends BaseCommand {
         @Description(" Dê a todos uma chave de uma caixa")
         public void onGiveKeyAll(CommandSender sender, String cratesName, Integer amount) {
             if (APICrates.existsCrate(cratesName)) {
-                ItemStack itemStack = PluginVars.cratesNameMap.get(cratesName).getKey();
+                ItemStack itemStack = new ItemStack(PluginVars.cratesNameMap.get(cratesName).getKey());
                 itemStack.setAmount(amount);
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    player.getInventory().addItem(itemStack);
+                    player.getInventory().addItem(new ItemStack(itemStack));
                     player.sendMessage(PluginMSGs.KEY_RECEIVE);
                 }
                 sender.sendMessage(PluginMSGs.KEY_GIVE);
