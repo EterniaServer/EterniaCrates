@@ -4,16 +4,15 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+
 import java.util.List;
 import java.util.Map;
-
-import static java.util.stream.Collectors.toMap;
+import java.util.TreeMap;
 
 public class CratesData {
 
     public final List<ItemStack> itensId = new ArrayList<>();
-    private Map<Double, ItemStack> itens = new LinkedHashMap<>();
+    private final Map<Double, ItemStack> itens = new TreeMap<>(Collections.reverseOrder());
     private final String cratesName;
     private String cratesLocation;
     private ItemStack key;
@@ -58,14 +57,6 @@ public class CratesData {
 
     public void setCratesLocation(String cratesLocation) {
         this.cratesLocation = cratesLocation;
-    }
-
-    public void sort() {
-        itens = itens
-                .entrySet()
-                .stream()
-                .sorted(Collections.reverseOrder(Map.Entry.comparingByKey()))
-                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
     }
 
 }

@@ -75,7 +75,6 @@ public class BaseCmdGeneric extends BaseCommand {
             final byte[] bytes = resultSet.getBytes("item");
             final double chance = resultSet.getDouble("chance");
             cratesData.addItens(chance, ItemStack.deserializeBytes(bytes));
-            cratesData.sort();
             if (cratesData.getCratesLocation() != null) {
                 PluginVars.cratesDataMap.put(cratesData.getCratesLocation(), cratesData);
             }
@@ -164,7 +163,6 @@ public class BaseCmdGeneric extends BaseCommand {
                 final CratesData cratesData = PluginVars.cratesNameMap.get(cratesName);
                 ItemStack itemStack = player.getInventory().getItemInMainHand();
                 cratesData.addItens(chance, itemStack);
-                cratesData.sort();
                 if (cratesData.getCratesLocation() != null) {
                     PluginVars.cratesDataMap.put(cratesData.getCratesLocation(), cratesData);
                 }
