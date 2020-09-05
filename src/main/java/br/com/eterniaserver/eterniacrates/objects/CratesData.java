@@ -3,16 +3,13 @@ package br.com.eterniaserver.eterniacrates.objects;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Collections;
-
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 public class CratesData {
 
     public final List<ItemStack> itensId = new ArrayList<>();
-    private final Map<Double, ItemStack> itens = new TreeMap<>(Collections.reverseOrder());
+    public final List<Double> itensChance = new ArrayList<>();
+
     private final String cratesName;
     private String cratesLocation;
     private ItemStack key;
@@ -42,13 +39,10 @@ public class CratesData {
         this.key = key;
     }
 
-    public Map<Double, ItemStack> getItens() {
-        return itens;
-    }
-
     public void addItens(Double chance, ItemStack itemStack) {
         itensId.add(itemStack);
-        itens.put(chance, itemStack);
+        itensChance.add(chance);
+        sort();
     }
 
     public String getCratesLocation() {
@@ -57,6 +51,21 @@ public class CratesData {
 
     public void setCratesLocation(String cratesLocation) {
         this.cratesLocation = cratesLocation;
+    }
+
+    private void sort() {
+        for (int i = 0; i < itensId.size(); i++) {
+            for (int j = 0; j < itensId.size(); j++) {
+                if (itensChance.get(i) < itensChance.get(j)) {
+                    double tempDouble = itensChance.get(j);
+                    ItemStack tempStack = itensId.get(j);
+                    itensChance.set(j, itensChance.get(i));
+                    itensId.set(j, itensId.get(i));
+                    itensChance.set(i, tempDouble);
+                    itensId.set(i, tempStack);
+                }
+            }
+        }
     }
 
 }

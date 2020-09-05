@@ -22,6 +22,7 @@ import br.com.eterniaserver.eternialib.sql.Connections;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -29,6 +30,7 @@ import org.bukkit.inventory.ItemStack;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 public class BaseCmdGeneric extends BaseCommand {
@@ -271,49 +273,24 @@ public class BaseCmdGeneric extends BaseCommand {
         public void listItens(CommandSender player, String cratesName) {
             if (APICrates.existsCrate(cratesName)) {
                 final CratesData cratesData = APICrates.getCrate(cratesName);
-                player.sendMessage(PluginMSGs.LIST_TITLE.replace("%crate%", cratesName));
-                int index = 0;
-                for (ItemStack itemStack : cratesData.itensId) {
-                    HoverEvent event = new HoverEvent(HoverEvent.Action.SHOW_ITEM, Bukkit.getItemFactory().hoverContentOf(itemStack));
-                    String name = "";
-                    if (itemStack.getItemMeta() != null) {
-                        name = itemStack.getItemMeta().getDisplayName();
-                        if (name.equals("")) {
-                            name = itemStack.getI18NDisplayName();
-                        }
-                    }
-                    TextComponent component = new TextComponent(PluginMSGs.LIST_ITENS.replace("%id%", String.valueOf(index)).replace("%item%", "x" + itemStack.getAmount() + " " + name));
-                    component.setHoverEvent(event);
-                    player.sendMessage(component);
-                    index++;
-                }
-            } else {
-                player.sendMessage(PluginMSGs.NO_EXISTS.replace("%crate%", cratesName));
-            }
-        }
-
-        @Subcommand("chance")
-        @Syntax("<caixa>")
-        @Description(" Chance de cada item")
-        public void onChance(CommandSender sender, String cratesName) {
-            if (APICrates.existsCrate(cratesName)) {
-                final CratesData cratesData = APICrates.getCrate(cratesName);
-                sender.sendMessage(PluginMSGs.LIST_TITLE.replace("%crate%", cratesName));
-                cratesData.getItens().forEach((k, v) -> {
+                player.sendMessage(PluginMSGs.LIST_TITLE.replace("%crate%", cratesData.getCratesName()));
+                for (int i = 0; i < cratesData.itensChance.size(); i++) {
+                    ItemStack v = cratesData.itensId.get(i);
                     HoverEvent event = new HoverEvent(HoverEvent.Action.SHOW_ITEM, Bukkit.getItemFactory().hoverContentOf(v));
                     String name = "";
+                    double k = cratesData.itensChance.get(i);
                     if (v.getItemMeta() != null) {
                         name = v.getItemMeta().getDisplayName();
                         if (name.equals("")) {
                             name = v.getI18NDisplayName();
                         }
                     }
-                    TextComponent component = new TextComponent(PluginMSGs.LIST_ITENS.replace("%id%", String.valueOf(k)).replace("%item%", "x" + v.getAmount() + " " + name));
+                    TextComponent component = new TextComponent(PluginMSGs.LIST_ITENS.replace("%id%", String.valueOf(i)).replace("%item%", "x" + v.getAmount() + " " + name).replace("%chance%", (k * 100) + "%"));
                     component.setHoverEvent(event);
-                    sender.sendMessage(component);
-                });
+                    player.sendMessage(component);
+                }
             } else {
-                sender.sendMessage(PluginMSGs.NO_EXISTS.replace("%crate%", cratesName));
+                player.sendMessage(PluginMSGs.NO_EXISTS.replace("%crate%", cratesName));
             }
         }
 
@@ -324,7 +301,6 @@ public class BaseCmdGeneric extends BaseCommand {
             if (APICrates.existsCrate(cratesName)) {
                 final CratesData cratesData = APICrates.getCrate(cratesName);
                 if (cratesData.itensId.get(id) != null) {
-                        cratesData.getItens().entrySet().removeIf(entry -> (cratesData.itensId.get(id).equals(entry.getValue())));
                     if (EterniaLib.getMySQL()) {
                         EterniaLib.getConnections().executeSQLQuery(connection -> {
                             final PreparedStatement getHashMap = connection.prepareStatement("DELETE FROM " + PluginConfigs.TABLE_ITENS + " WHERE crate=? AND item=?");
@@ -342,7 +318,8 @@ public class BaseCmdGeneric extends BaseCommand {
                             e.printStackTrace();
                         }
                     }
-                    cratesData.itensId.remove(cratesData.itensId.get(id));
+                    cratesData.itensId.remove(id.intValue());
+                    cratesData.itensChance.remove(id.intValue());
                     PluginVars.cratesNameMap.put(cratesName, cratesData);
                     PluginVars.cratesDataMap.put(cratesData.getCratesLocation(), cratesData);
                     player.sendMessage(PluginMSGs.REMOVE_ITEM);

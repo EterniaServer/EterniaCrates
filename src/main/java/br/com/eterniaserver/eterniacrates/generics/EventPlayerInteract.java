@@ -22,10 +22,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class EventPlayerInteract implements Listener {
 
@@ -33,6 +31,7 @@ public class EventPlayerInteract implements Listener {
     public void onPlayerInteractEvent(PlayerInteractEvent e) {
         final Action action = e.getAction();
         final Player player = e.getPlayer();
+        final ItemStack itemStack = player.getInventory().getItemInMainHand();
 
         if (action.equals(Action.LEFT_CLICK_BLOCK)) {
             final Block block = e.getClickedBlock();
@@ -43,19 +42,21 @@ public class EventPlayerInteract implements Listener {
                 if (PluginVars.cratesDataMap.containsKey(saveloc)) {
                     final CratesData cratesData = PluginVars.cratesDataMap.get(saveloc);
                     player.sendMessage(PluginMSGs.LIST_TITLE.replace("%crate%", cratesData.getCratesName()));
-                    cratesData.getItens().forEach((k, v) -> {
+                    for (int i = 0; i < cratesData.itensChance.size(); i++) {
+                        ItemStack v = cratesData.itensId.get(i);
                         HoverEvent event = new HoverEvent(HoverEvent.Action.SHOW_ITEM, Bukkit.getItemFactory().hoverContentOf(v));
                         String name = "";
+                        double k = cratesData.itensChance.get(i);
                         if (v.getItemMeta() != null) {
                             name = v.getItemMeta().getDisplayName();
                             if (name.equals("")) {
                                 name = v.getI18NDisplayName();
                             }
                         }
-                        TextComponent component = new TextComponent(PluginMSGs.LIST_ITENS.replace("%id%", String.valueOf(k)).replace("%item%", "x" + v.getAmount() + " " + name));
+                        TextComponent component = new TextComponent(PluginMSGs.LIST_ITENS.replace("%id%", String.valueOf(i)).replace("%item%", "x" + v.getAmount() + " " + name).replace("%chance%", (k * 100) + "%"));
                         component.setHoverEvent(event);
                         player.sendMessage(component);
-                    });
+                    }
                     e.setCancelled(true);
                 }
             }
@@ -90,7 +91,7 @@ public class EventPlayerInteract implements Listener {
                         e.setCancelled(true);
                     }
                 }
-            } else if ((player.getInventory().getItemInMainHand().getType() != Material.AIR && new NBTItem(player.getInventory().getItemInMainHand()).hasKey("EterniaKey"))) {
+            } else if (itemStack.getType() != Material.AIR && itemStack.getItemMeta().getDisplayName().contains("Chave")) {
                 e.setCancelled(true);
             }
         }
@@ -119,15 +120,17 @@ public class EventPlayerInteract implements Listener {
                 }
                 PluginVars.usersCooldown.put(UUIDMoreCrateName, System.currentTimeMillis());
                 ItemStack itemStack = null;
-                AtomicReference<Double> lowestNumberAboveRandom = new AtomicReference<>(1.1);
-                Map<Double, ItemStack> itens = cratesData.getItens();
-                itens.forEach((k, v) -> {
-                    if (k < lowestNumberAboveRandom.get() && k > Math.random()) {
-                        lowestNumberAboveRandom.set(k);
+                double lowestNumberAboveRandom = 1.1;
+                int id = 0;
+                for (int i = 0; i < cratesData.itensChance.size(); i++) {
+                    if (cratesData.itensChance.get(i) < lowestNumberAboveRandom && cratesData.itensChance.get(i) > Math.random()) {
+                        lowestNumberAboveRandom = cratesData.itensChance.get(i);
+                        id = i;
                     }
-                });
-                if (lowestNumberAboveRandom.get() < 1.0) {
-                    itemStack = itens.get(lowestNumberAboveRandom.get());
+                }
+
+                if (lowestNumberAboveRandom < 1.00001) {
+                    itemStack = cratesData.itensId.get(id);
                 }
 
                 if (itemStack != null) {
@@ -135,9 +138,7 @@ public class EventPlayerInteract implements Listener {
                     return;
                 }
 
-                double xx = locationC.getX();
-                double zz = locationC.getZ();
-                locationC.add(xx > 0 ? -0.5 : 0.5, 0.0, zz > 0 ? -0.5 : 0.5);
+                locationC = getCenter(locationC);
                 for (double angle = 0; angle < 2 * Math.PI; angle += 0.2) {
                     final double x = 2 * Math.cos(angle);
                     final double z = 2 * Math.sin(angle);
@@ -156,9 +157,7 @@ public class EventPlayerInteract implements Listener {
     }
 
     private void giveItem(ItemStack itemStack, Player player, Location location) {
-        double xx = location.getX();
-        double zz = location.getZ();
-        location.add(xx > 0 ? -0.5 : 0.5, 0.0, zz > 0 ? -0.5 : 0.5);
+        location = getCenter(location);
         for (double angle = 0; angle < 2 * Math.PI; angle += 0.2) {
             final double x = 2 * Math.cos(angle);
             final double z = 2 * Math.sin(angle);
@@ -177,6 +176,19 @@ public class EventPlayerInteract implements Listener {
 
     private boolean hasCooldown(long cooldown, int timeNeeded) {
         return TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - cooldown) >= timeNeeded;
+    }
+
+    public Location getCenter(Location loc) {
+        return new Location(loc.getWorld(),
+                getRelativeCoord(loc.getBlockX()),
+                getRelativeCoord(loc.getBlockY()),
+                getRelativeCoord(loc.getBlockZ()));
+    }
+
+    private double getRelativeCoord(int i) {
+        double d = i;
+        d = d < 0 ? d - .5 : d + .5;
+        return d;
     }
 
 }

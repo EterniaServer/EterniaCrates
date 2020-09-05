@@ -16,7 +16,7 @@ crates:
   key-give: '&7Você deu uma chave para o jogador&8.'
   key-receive: '&7Você recebeu uma chave&8.'
   list-title: '&7Itens da caixa &3%crate%&8.'
-  list-item: '&3%id% &8- &3%item%&8.'
+  list-item: '&3%id% &8- &3%item% &7Chance&8: &3%chance%&8.'
   remove-item: '&3Item removido com sucesso&8.'
   no-item: '&7Essa caixa não possui nenhum item com esse id&8.'
   deleted: '&7Caixa deletada com sucesso&8.'
