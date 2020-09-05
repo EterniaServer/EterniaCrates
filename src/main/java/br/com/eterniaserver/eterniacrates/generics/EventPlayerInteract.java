@@ -90,7 +90,8 @@ public class EventPlayerInteract implements Listener {
                         e.setCancelled(true);
                     }
                 }
-            } else if (new NBTItem(player.getInventory().getItemInMainHand()).hasKey("EterniaKey")) {
+            } else if ((player.getInventory().getItemInMainHand().getType() != Material.AIR && new NBTItem(player.getInventory().getItemInMainHand()).hasKey("EterniaKey"))) {
+                e.setCancelled(true);
             }
         }
     }
@@ -136,7 +137,7 @@ public class EventPlayerInteract implements Listener {
 
                 double xx = locationC.getX();
                 double zz = locationC.getZ();
-                locationC.add(xx > 0 ? 0.5 : -0.5, 0.0, zz > 0 ? 0.5 : -0.5);
+                locationC.add(xx > 0 ? -0.5 : 0.5, 0.0, zz > 0 ? -0.5 : 0.5);
                 for (double angle = 0; angle < 2 * Math.PI; angle += 0.2) {
                     final double x = 2 * Math.cos(angle);
                     final double z = 2 * Math.sin(angle);
@@ -157,7 +158,7 @@ public class EventPlayerInteract implements Listener {
     private void giveItem(ItemStack itemStack, Player player, Location location) {
         double xx = location.getX();
         double zz = location.getZ();
-        location.add(xx > 0 ? 0.5 : -0.5, 0.0, zz > 0 ? 0.5 : -0.5);
+        location.add(xx > 0 ? -0.5 : 0.5, 0.0, zz > 0 ? -0.5 : 0.5);
         for (double angle = 0; angle < 2 * Math.PI; angle += 0.2) {
             final double x = 2 * Math.cos(angle);
             final double z = 2 * Math.sin(angle);
