@@ -1,42 +1,26 @@
 package br.com.eterniaserver.eterniacrates;
 
-import br.com.eterniaserver.acf.ConditionFailedException;
-import br.com.eterniaserver.eterniacrates.dependencies.eternialib.Files;
-import br.com.eterniaserver.eterniacrates.generics.BaseCmdGeneric;
-import br.com.eterniaserver.eterniacrates.generics.EventPlayerInteract;
-import br.com.eterniaserver.eternialib.EterniaLib;
-import org.bukkit.configuration.file.YamlConfiguration;
+import br.com.eterniaserver.eterniacrates.configurations.configs.ConfigsCfg;
+import br.com.eterniaserver.eterniacrates.configurations.configs.TableCfg;
+import br.com.eterniaserver.eterniacrates.configurations.locales.CommandsLocaleCfg;
+import br.com.eterniaserver.eterniacrates.configurations.locales.MsgCfg;
+
+import br.com.eterniaserver.eterniacrates.events.PlayerHandler;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class EterniaCrates extends JavaPlugin {
 
-    public static final YamlConfiguration serverConfig = new YamlConfiguration();
-    public static final YamlConfiguration msgConfig = new YamlConfiguration();
-
-    private final Files files = new Files(this);
+    public static final ConfigsCfg configs = new ConfigsCfg();
+    public static final CommandsLocaleCfg commands = new CommandsLocaleCfg();
+    public static final MsgCfg msg = new MsgCfg();
 
     @Override
     public void onEnable() {
 
-        files.loadConfigs();
-        files.loadMessages();
-        files.loadDatabase();
+        new TableCfg();
+        new Managers();
 
-        EterniaLib.getManager().enableUnstableAPI("help");
-        EterniaLib.getManager().getCommandConditions().addCondition(Double.class, "limits", (c, exec, value) -> {
-            if (value == null) {
-                return;
-            }
-            if (c.getConfigValue("min", 0) > value) {
-                throw new ConditionFailedException("O valor mínimo precisa ser &3" + c.getConfigValue("min", 0));
-            }
-            if (c.getConfigValue("max", 3) < value) {
-                throw new ConditionFailedException("O valor máximo precisa ser &3 " + c.getConfigValue("max", 3));
-            }
-        });
-
-        EterniaLib.getManager().registerCommand(new BaseCmdGeneric());
-        getServer().getPluginManager().registerEvents(new EventPlayerInteract(), this);
+        this.getServer().getPluginManager().registerEvents(new PlayerHandler(), this);
 
     }
 

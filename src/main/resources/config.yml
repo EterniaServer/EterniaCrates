@@ -1,4 +1,0 @@
-sql:
-  table-cooldown: 'ec_cooldown'
-  table-itens: 'ec_itens'
-  table-crates: 'ec_crates'

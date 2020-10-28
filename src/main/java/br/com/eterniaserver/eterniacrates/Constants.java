@@ -1,10 +1,18 @@
-package br.com.eterniaserver.eterniacrates.generics;
+package br.com.eterniaserver.eterniacrates;
 
-public class PluginConstants {
+import java.io.File;
 
-    private PluginConstants() {
+public class Constants {
+
+    private Constants() {
         throw new IllegalStateException("Utility class");
     }
+
+    public static final String DATA_LAYER_FOLDER_PATH = "plugins" + File.separator + "EterniaCrate";
+    public static final String DATA_LOCALE_FOLDER_PATH = Constants.DATA_LAYER_FOLDER_PATH + File.separator + "locales";
+    public static final String CONFIG_FILE_PATH = Constants.DATA_LAYER_FOLDER_PATH + File.separator + "config.yml";
+    public static final String MESSAGES_FILE_PATH = DATA_LOCALE_FOLDER_PATH + File.separator + "messages.yml";
+    public static final String COMMANDS_FILE_PATH = DATA_LOCALE_FOLDER_PATH + File.separator + "commands.yml";
 
     public static String getQueryCreateTable(final String table, final String values) {
         return "CREATE TABLE IF NOT EXISTS " + table + " " + values + ";";
