@@ -3,7 +3,7 @@ package br.com.eterniaserver.eterniacrates;
 import br.com.eterniaserver.acf.ConditionFailedException;
 import br.com.eterniaserver.eterniacrates.commands.Crate;
 import br.com.eterniaserver.eterniacrates.enums.Commands;
-import br.com.eterniaserver.eternialib.EterniaLib;
+import br.com.eterniaserver.eternialib.CommandManager;
 
 public class Managers {
 
@@ -14,7 +14,7 @@ public class Managers {
     }
 
     private void loadCommandsLocale() {
-        EterniaLib.getManager().getCommandReplacements().addReplacements(
+        CommandManager.getCommandReplacements().addReplacements(
                 "crate", EterniaCrates.commands.getName(Commands.CRATE),
                 "crate_syntax", EterniaCrates.commands.getSyntax(Commands.CRATE),
                 "crate_description", EterniaCrates.commands.getDescription(Commands.CRATE),
@@ -67,7 +67,7 @@ public class Managers {
     }
 
     private void loadConditions() {
-        EterniaLib.getManager().getCommandConditions().addCondition(Double.class, "limits", (c, exec, value) -> {
+        CommandManager.getCommandConditions().addCondition(Double.class, "limits", (c, exec, value) -> {
             if (value == null) {
                 return;
             }
@@ -81,7 +81,7 @@ public class Managers {
     }
 
     private void registerCommands() {
-        EterniaLib.getManager().registerCommand(new Crate());
+        CommandManager.registerCommand(new Crate());
     }
 
 }

@@ -3,6 +3,6 @@ main: br.com.eterniaserver.eterniacrates.EterniaCrates
 name: EterniaCrates
 version: '${project.version}'
 author: Yuri Nogueira
-description: A Basic Crates Plugid
+description: A basic quests plugin
 api-version: '1.16'
 depend: [EterniaLib]

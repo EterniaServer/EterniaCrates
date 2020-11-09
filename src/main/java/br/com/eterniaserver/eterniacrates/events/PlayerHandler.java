@@ -1,6 +1,5 @@
 package br.com.eterniaserver.eterniacrates.events;
 
-import br.com.eterniaserver.eterniacrates.Constants;
 import br.com.eterniaserver.eterniacrates.EterniaCrates;
 import br.com.eterniaserver.eterniacrates.core.APIServer;
 import br.com.eterniaserver.eterniacrates.enums.Messages;
@@ -8,7 +7,9 @@ import br.com.eterniaserver.eterniacrates.objects.Crate;
 import br.com.eterniaserver.eterniacrates.objects.CrateData;
 import br.com.eterniaserver.eterniacrates.objects.User;
 
-import br.com.eterniaserver.eternialib.EQueries;
+import br.com.eterniaserver.eternialib.SQL;
+import br.com.eterniaserver.eternialib.sql.queries.Insert;
+import br.com.eterniaserver.eternialib.sql.queries.Update;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -55,7 +56,11 @@ public class PlayerHandler implements Listener {
             crate.setCrate(APIServer.getCachedLoc(user.getUUID()));
             String saveloc = block.getX() + ":" + block.getY() + ":" + block.getZ();
 
-            EQueries.executeQuery(Constants.getQueryUpdate(EterniaCrates.configs.tableCrates, "location", saveloc, "crate", APIServer.getCachedLoc(user.getUUID())));
+            Update update = new Update(EterniaCrates.configs.tableCrates);
+            update.set.set("location", saveloc);
+            update.where.set("crate", APIServer.getCachedLoc(user.getUUID()));
+            SQL.executeAsync(update);
+
             APIServer.removeCachedLoc(user.getUUID());
             user.sendMessage(Messages.CRATE_LOC_SET);
             event.setCancelled(true);
@@ -84,9 +89,15 @@ public class PlayerHandler implements Listener {
             }
 
             if (APIServer.hasUserCooldown(UUIDMoreCrateName)) {
-                EQueries.executeQuery(Constants.getQueryUpdate(EterniaCrates.configs.tableUsersCooldown,  "cooldown", System.currentTimeMillis(), "uuid", UUIDMoreCrateName));
+                Update update = new Update(EterniaCrates.configs.tableUsersCooldown);
+                update.set.set("cooldown", System.currentTimeMillis());
+                update.where.set("uuid", UUIDMoreCrateName);
+                SQL.executeAsync(update);
             } else {
-                EQueries.executeQuery(Constants.getQueryInsert(EterniaCrates.configs.tableUsersCooldown, "(uuid, cooldown)", "('" + UUIDMoreCrateName + "', '" + System.currentTimeMillis() + "')"));
+                Insert insert = new Insert(EterniaCrates.configs.tableUsersCooldown);
+                insert.columns.set("uuid", "cooldown");
+                insert.values.set(UUIDMoreCrateName, System.currentTimeMillis());
+                SQL.executeAsync(insert);
             }
             APIServer.putUserCooldown(UUIDMoreCrateName, System.currentTimeMillis());
             ItemStack itemStack = null;
