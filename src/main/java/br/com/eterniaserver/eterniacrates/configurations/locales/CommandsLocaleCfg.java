@@ -32,7 +32,7 @@ public class CommandsLocaleCfg {
         Map<String, CommandLocale> defaults = new HashMap<>();
 
         this.addDefault(defaults, Commands.CRATE, "crate", "eternia.crate.admin", " <página>", " Ajuda para o sistema de caixas", null);
-        this.addDefault(defaults, Commands.CRATE_KEY, "key|givekey", "eternia.crate.admin", " <caixa> <quantia>", " Dê uma quantia de chaves de uma caixa a um jogador", null);
+        this.addDefault(defaults, Commands.CRATE_KEY, "givekey", "eternia.crate.admin", " <caixa> <quantia>", " Dê uma quantia de chaves de uma caixa a um jogador", null);
         this.addDefault(defaults, Commands.CRATE_CREATE, "create", "eternia.crate.admin", " <caixa>", " Crie uma nova caixa", null);
         this.addDefault(defaults, Commands.CRATE_COOLDOWN, "cooldown", "eternia.crate.admin", " <caixa> <cooldown>", " Define um cooldown para uma caixa", null);
         this.addDefault(defaults, Commands.CRATE_LOCATION, "location", "eternia.crate.admin", " <caixa>", " Define a localização de uma caixa", null);

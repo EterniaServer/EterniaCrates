@@ -5,4 +5,5 @@ version: '${project.version}'
 author: Yuri Nogueira
 description: A basic quests plugin
 api-version: '1.16'
+sofdepend: [EterniaKamui]
 depend: [EterniaLib]

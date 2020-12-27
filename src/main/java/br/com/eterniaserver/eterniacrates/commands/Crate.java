@@ -13,6 +13,7 @@ import br.com.eterniaserver.acf.annotation.HelpCommand;
 import br.com.eterniaserver.acf.annotation.Subcommand;
 import br.com.eterniaserver.acf.annotation.Syntax;
 import br.com.eterniaserver.acf.bukkit.contexts.OnlinePlayer;
+import br.com.eterniaserver.eterniacrates.Constants;
 import br.com.eterniaserver.eterniacrates.EterniaCrates;
 import br.com.eterniaserver.eterniacrates.core.APIServer;
 import br.com.eterniaserver.eterniacrates.enums.Messages;
@@ -31,6 +32,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,48 +41,41 @@ import java.sql.SQLException;
 public class Crate extends BaseCommand {
 
     public Crate() {
-        try {
-            PreparedStatement preparedStatement = SQL.getConnection().prepareStatement(new Select(EterniaCrates.configs.tableUsersCooldown).queryString());
-            preparedStatement.execute();
-            ResultSet resultSet = preparedStatement.getResultSet();
+        try (Connection connection = SQL.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(new Select(EterniaCrates.configs.tableUsersCooldown).queryString()); ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
-                APIServer.putUserCooldown(resultSet.getString("uuid"), resultSet.getLong("cooldown"));
+                APIServer.putUserCooldown(resultSet.getString(Constants.UUID), resultSet.getLong(Constants.COOLDOWN));
             }
-            resultSet.close();
-            preparedStatement.close();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
 
-            preparedStatement = SQL.getConnection().prepareStatement(new Select(EterniaCrates.configs.tableCrates).queryString());
-            preparedStatement.execute();
-            resultSet = preparedStatement.getResultSet();
+        try (Connection connection = SQL.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(new Select(EterniaCrates.configs.tableCrates).queryString()); ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
-                final String cratesName = resultSet.getString("crate");
-                final CrateData cratesData = new CrateData(cratesName);
-                cratesData.setCooldown(resultSet.getInt("cooldown"));
-                final byte[] key = resultSet.getBytes("cratekey");
+                String cratesName = resultSet.getString(Constants.CRATE);
+                CrateData cratesData = new CrateData(cratesName);
+                cratesData.setCooldown(resultSet.getInt(Constants.COOLDOWN));
+                byte[] key = resultSet.getBytes("cratekey");
                 if (key != null) {
                     cratesData.setKey(ItemStack.deserializeBytes(key));
                 }
-                final String locString = resultSet.getString("location");
+                String locString = resultSet.getString(Constants.LOCATION);
                 if (locString != null) {
                     cratesData.setCratesLocation(locString);
                 }
                 APIServer.putCrate(cratesName, cratesData);
             }
-            resultSet.close();
-            preparedStatement.close();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
 
-            preparedStatement = SQL.getConnection().prepareStatement(new Select(EterniaCrates.configs.tableItens).queryString());
-            preparedStatement.execute();
-            resultSet = preparedStatement.getResultSet();
+        try (Connection connection = SQL.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(new Select(EterniaCrates.configs.tableItens).queryString()); ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
-                final String cratesName = resultSet.getString("crate");
-                final CrateData crateData = APIServer.getCrate(cratesName);
-                final byte[] bytes = resultSet.getBytes("item");
-                final double chance = resultSet.getDouble("chance");
+                String cratesName = resultSet.getString(Constants.CRATE);
+                CrateData crateData = APIServer.getCrate(cratesName);
+                byte[] bytes = resultSet.getBytes("item");
+                double chance = resultSet.getDouble("chance");
                 crateData.addItens(chance, ItemStack.deserializeBytes(bytes));
             }
-            resultSet.close();
-            preparedStatement.close();
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -136,7 +131,7 @@ public class Crate extends BaseCommand {
         APIServer.createCrate(cratesName);
 
         Insert insert = new Insert(EterniaCrates.configs.tableCrates);
-        insert.columns.set("crate");
+        insert.columns.set(Constants.CRATE);
         insert.values.set(cratesName);
         SQL.executeAsync(insert);
 
@@ -158,8 +153,8 @@ public class Crate extends BaseCommand {
         cratesData.setCooldown(cooldown);
 
         Update update = new Update(EterniaCrates.configs.tableCrates);
-        update.set.set("cooldown", cooldown);
-        update.where.set("crate", cratesName);
+        update.set.set(Constants.COOLDOWN, cooldown);
+        update.where.set(Constants.CRATE, cratesName);
         SQL.executeAsync(update);
 
         player.sendMessage(EterniaCrates.msg.getMessage(Messages.CRATE_SET_COOLDOWN, true, cratesName, String.valueOf(cooldown)));
@@ -202,13 +197,11 @@ public class Crate extends BaseCommand {
         CrateData crateData = APIServer.getCrate(cratesName);
         crateData.addItens(chance, itemStack);
 
-        try {
-            PreparedStatement preparedStatement = SQL.getConnection().prepareStatement("INSERT INTO " + EterniaCrates.configs.tableItens + " (crate, `item`, chance) VALUES (?, ?, ?)");
+        try (Connection connection = SQL.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO " + EterniaCrates.configs.tableItens + " (crate, `item`, chance) VALUES (?, ?, ?)")) {
             preparedStatement.setString(1, cratesName);
             preparedStatement.setBytes(2, itemStack.serializeAsBytes());
             preparedStatement.setDouble(3, chance);
             preparedStatement.execute();
-            preparedStatement.close();
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -246,11 +239,11 @@ public class Crate extends BaseCommand {
         APIServer.removeCrate(cratesName);
 
         Delete delete = new Delete(EterniaCrates.configs.tableItens);
-        delete.where.set("crate", cratesName);
+        delete.where.set(Constants.CRATE, cratesName);
         SQL.executeAsync(delete);
 
         delete = new Delete(EterniaCrates.configs.tableCrates);
-        delete.where.set("crate", cratesName);
+        delete.where.set(Constants.CRATE, cratesName);
         SQL.executeAsync(delete);
 
         user.sendMessage(Messages.CRATE_DELETED);
@@ -276,17 +269,15 @@ public class Crate extends BaseCommand {
 
         CrateData cratesData = APIServer.getCrate(cratesName);
         NBTItem item = new NBTItem(tempItem);
-        item.setInteger("EterniaKey", cratesName.hashCode());
+        item.setInteger(Constants.ETERNIA_KEY, cratesName.hashCode());
         ItemStack itemStack = item.getItem();
         player.getInventory().setItemInMainHand(itemStack);
         cratesData.setKey(itemStack);
 
-        try {
-            PreparedStatement preparedStatement = SQL.getConnection().prepareStatement("UPDATE " + EterniaCrates.configs.tableCrates + " SET cratekey=? WHERE crate=?");
+        try (Connection connection = SQL.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement("UPDATE " + EterniaCrates.configs.tableCrates + " SET cratekey=? WHERE crate=?")) {
             preparedStatement.setBytes(1, itemStack.serializeAsBytes());
             preparedStatement.setString(2, cratesName);
             preparedStatement.execute();
-            preparedStatement.close();
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -321,7 +312,9 @@ public class Crate extends BaseCommand {
 
         ItemStack itemStack = APIServer.getCrate(cratesName).getKey();
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.getInventory().addItem(new ItemStack(itemStack));
+            ItemStack item = new ItemStack(itemStack);
+            item.setAmount(amount);
+            player.getInventory().addItem(item);
             player.sendMessage(EterniaCrates.msg.getMessage(Messages.CRATE_KEY_RECEIVED, true, String.valueOf(amount), cratesName));
         }
         sender.sendMessage(EterniaCrates.msg.getMessage(Messages.CRATE_KEY_SEND, true, String.valueOf(amount), cratesName, "todos", "todos"));
@@ -344,13 +337,10 @@ public class Crate extends BaseCommand {
             return;
         }
 
-        try {
-
-            PreparedStatement preparedStatement = SQL.getConnection().prepareStatement("DELETE FROM " + EterniaCrates.configs.tableItens + " WHERE crate=? AND item=?");
+        try (Connection connection = SQL.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM " + EterniaCrates.configs.tableItens + " WHERE crate=? AND item=?")) {
             preparedStatement.setString(1, cratesName);
             preparedStatement.setBytes(2, cratesData.itensId.get(id).serializeAsBytes());
             preparedStatement.execute();
-            preparedStatement.close();
         } catch (SQLException exception) {
             exception.printStackTrace();
         }

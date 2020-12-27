@@ -1,5 +1,6 @@
 package br.com.eterniaserver.eterniacrates.objects;
 
+import br.com.eterniaserver.eterniacrates.Constants;
 import br.com.eterniaserver.eterniacrates.core.APIServer;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -32,7 +33,7 @@ public class Crate {
     }
 
     public boolean isCrate() {
-        String crate = persistentDataContainer.get(NamespacedKey.minecraft("eternia_crate"), PersistentDataType.STRING);
+        String crate = persistentDataContainer.get(NamespacedKey.minecraft(Constants.ETERNIA_CRATE), PersistentDataType.STRING);
         if (crate != null) {
             CrateData crateData = APIServer.getCrate(crate);
             return crateData.isValid(block);
@@ -41,14 +42,14 @@ public class Crate {
     }
 
     public void setCrate(String crate) {
-        persistentDataContainer.set(NamespacedKey.minecraft("eternia_crate"), PersistentDataType.STRING, crate);
+        persistentDataContainer.set(NamespacedKey.minecraft(Constants.ETERNIA_CRATE), PersistentDataType.STRING, crate);
         chest.update();
         CrateData crateData = APIServer.getCrate(crate);
         crateData.setCratesLocation(block.getX() + ":" + block.getY() + ":" + block.getZ());
     }
 
     public CrateData getCrate() {
-        return APIServer.getCrate(persistentDataContainer.get(NamespacedKey.minecraft("eternia_crate"), PersistentDataType.STRING));
+        return APIServer.getCrate(persistentDataContainer.get(NamespacedKey.minecraft(Constants.ETERNIA_CRATE), PersistentDataType.STRING));
     }
 
 }

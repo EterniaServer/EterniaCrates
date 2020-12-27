@@ -4,59 +4,69 @@ import br.com.eterniaserver.eterniacrates.objects.CrateData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
-public interface APIServer {
+public class APIServer {
 
-    static boolean existsCrate(String crateName) {
-        return Vars.crateMap.containsKey(crateName);
+    private APIServer() {
+        throw new IllegalStateException("Utility class");
     }
 
-    static CrateData getCrate(String crateName) {
-        return Vars.crateMap.get(crateName);
+    private static final Map<String, CrateData> crateMap = new HashMap<>();
+    private static final Map<String, Long> userCooldownMap = new HashMap<>();
+    private static final Map<UUID, String> locCached = new HashMap<>();
+
+    public static boolean existsCrate(String crateName) {
+        return crateMap.containsKey(crateName);
     }
 
-    static void createCrate(String crateName) {
-        Vars.crateMap.put(crateName, new CrateData(crateName));
+    public static CrateData getCrate(String crateName) {
+        return crateMap.get(crateName);
     }
 
-    static void putCrate(String crateName, CrateData crateData) {
-        Vars.crateMap.put(crateName, crateData);
+    public static void createCrate(String crateName) {
+        crateMap.put(crateName, new CrateData(crateName));
     }
 
-    static void removeCrate(String crateName) {
-        Vars.crateMap.remove(crateName);
+    public static void putCrate(String crateName, CrateData crateData) {
+        crateMap.put(crateName, crateData);
     }
 
-    static void putUserCooldown(String str, long amount) {
-        Vars.userCooldownMap.put(str, amount);
+    public static void removeCrate(String crateName) {
+        crateMap.remove(crateName);
     }
 
-    static long getUserCooldown(String str) {
-        return Vars.userCooldownMap.getOrDefault(str, System.currentTimeMillis());
+    public static void putUserCooldown(String str, long amount) {
+        userCooldownMap.put(str, amount);
     }
 
-    static boolean hasUserCooldown(String str) {
-        return Vars.userCooldownMap.containsKey(str);
+    public static long getUserCooldown(String str) {
+        return userCooldownMap.getOrDefault(str, System.currentTimeMillis());
     }
 
-    static void putCachedLoc(UUID uuid, String crateName) {
-        Vars.locCached.put(uuid, crateName);
+    public static boolean hasUserCooldown(String str) {
+        return userCooldownMap.containsKey(str);
     }
 
-    static boolean hasCachedLoc(UUID uuid) {
-        return Vars.locCached.containsKey(uuid);
+    public static void putCachedLoc(UUID uuid, String crateName) {
+        locCached.put(uuid, crateName);
     }
 
-    static String getCachedLoc(UUID uuid) {
-        return Vars.locCached.get(uuid);
+    public static boolean hasCachedLoc(UUID uuid) {
+        return locCached.containsKey(uuid);
     }
 
-    static void removeCachedLoc(UUID uuid) {
-        Vars.locCached.remove(uuid);
+    public static String getCachedLoc(UUID uuid) {
+        return locCached.get(uuid);
     }
 
-    static void logError(String errorMsg, int level) {
+    public static void removeCachedLoc(UUID uuid) {
+        locCached.remove(uuid);
+    }
+
+    public static void logError(String errorMsg, int level) {
         String errorLevel;
         switch (level) {
             case 1:

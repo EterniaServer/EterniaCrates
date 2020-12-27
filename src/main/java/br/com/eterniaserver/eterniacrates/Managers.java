@@ -67,15 +67,15 @@ public class Managers {
     }
 
     private void loadConditions() {
-        CommandManager.getCommandConditions().addCondition(Double.class, "limits", (c, exec, value) -> {
+        CommandManager.getCommandConditions().addCondition(Double.class, Constants.LIMITS, (c, exec, value) -> {
             if (value == null) {
                 return;
             }
-            if (c.getConfigValue("min", 0) > value) {
-                throw new ConditionFailedException("O valor mínimo precisa ser &3" + c.getConfigValue("min", 0));
+            if (c.getConfigValue(Constants.MIN, 0) > value) {
+                throw new ConditionFailedException("O valor mínimo precisa ser &3" + c.getConfigValue(Constants.MIN, 0));
             }
-            if (c.getConfigValue("max", 3) < value) {
-                throw new ConditionFailedException("O valor máximo precisa ser &3 " + c.getConfigValue("max", 3));
+            if (c.getConfigValue(Constants.MAX, 3) < value) {
+                throw new ConditionFailedException("O valor máximo precisa ser &3 " + c.getConfigValue(Constants.MAX, 3));
             }
         });
     }
