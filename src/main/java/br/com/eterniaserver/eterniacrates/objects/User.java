@@ -16,7 +16,7 @@ public class User {
 
     public User(Player player) {
         this.player = player;
-        this.uuid = UUIDFetcher.getUUIDOf(player.getName());
+        this.uuid = player.getUniqueId();
     }
 
     public Player getPlayer() {

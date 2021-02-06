@@ -86,6 +86,10 @@ public class PlayerHandler implements Listener {
         Player player = user.getPlayer();
 
         ItemStack userItem = player.getInventory().getItemInMainHand();
+        if (userItem.getType() == Material.AIR) {
+            user.sendMessage(Messages.ITEM_NO_KEY);
+            return;
+        }
         NBTItem userKey = new NBTItem(userItem);
         Integer userNBT = userKey.getInteger(Constants.ETERNIA_KEY);
 
