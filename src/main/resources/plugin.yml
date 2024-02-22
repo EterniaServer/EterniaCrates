@@ -1,9 +1,9 @@
 main: br.com.eterniaserver.eterniacrates.EterniaCrates
 
 name: EterniaCrates
-version: '${project.version}'
+version: "${version}"
+dev-url: https://github.com/EterniaServer/EterniaCrates
 author: Yuri Nogueira
-description: A basic quests plugin
-api-version: '1.16'
-sofdepend: [EterniaKamui]
+description: A basic crate plugin
+api-version: "1.20"
 depend: [EterniaLib]
