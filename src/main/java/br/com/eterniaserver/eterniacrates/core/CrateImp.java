@@ -21,6 +21,7 @@ public class CrateImp implements CrateAPI {
 
     private final EterniaCrates plugin;
 
+    private final List<String> crateNames = new ArrayList<>();
     private final Map<String, CrateDTO> crateMap = new HashMap<>();
     private final Map<String, UserCooldownDto> userCooldownMap = new HashMap<>();
     private final Map<UUID, String> cachedLocMap = new HashMap<>();
@@ -32,6 +33,7 @@ public class CrateImp implements CrateAPI {
     public void putCrates(List<Crate> crates) {
         for (Crate crate : crates) {
             crateMap.put(crate.getCrate(), new CrateDTO(plugin, crate));
+            crateNames.add(crate.getCrate());
         }
     }
 
@@ -56,6 +58,11 @@ public class CrateImp implements CrateAPI {
     }
 
     @Override
+    public List<String> crateNames() {
+        return crateNames;
+    }
+
+    @Override
     public boolean existsCrate(String name) {
         return crateMap.containsKey(name);
     }
@@ -68,6 +75,7 @@ public class CrateImp implements CrateAPI {
 
         CrateDTO crateDTO = new CrateDTO(plugin, crate);
         crateMap.put(name, crateDTO);
+        crateNames.add(name);
 
         runAsync(() -> EterniaLib.getDatabase().insert(Crate.class, crate));
     }
@@ -92,6 +100,7 @@ public class CrateImp implements CrateAPI {
         List<Optional<Integer>> ids = crateMap.get(name).getItems().stream().map(CrateItemDTO::getId).toList();
 
         crateMap.remove(name);
+        crateNames.remove(name);
 
         runAsync(() -> {
             for (Optional<Integer> id : ids) {

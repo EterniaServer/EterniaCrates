@@ -3,9 +3,12 @@ package br.com.eterniaserver.eterniacrates.api;
 import br.com.eterniaserver.eterniacrates.core.CrateDTO;
 import br.com.eterniaserver.eterniacrates.core.UserCooldownDto;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface CrateAPI {
+
+    List<String> crateNames();
 
     boolean existsCrate(String name);
 

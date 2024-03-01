@@ -57,6 +57,7 @@ public class Manager {
         EterniaCrates.setCrateAPI(crateImp);
 
         loadConditions();
+        loadCompletions();
         registerCommands(plugin);
     }
 
@@ -72,6 +73,10 @@ public class Manager {
                 throw new ConditionFailedException("O valor máximo precisa ser &3 " + c.getConfigValue("max", 3));
             }
         });
+    }
+
+    private void loadCompletions() {
+        EterniaLib.getCmdManager().getCommandCompletions().registerStaticCompletion("crates", EterniaCrates.getCrateAPI().crateNames());
     }
 
     private void registerCommands(EterniaCrates plugin) {

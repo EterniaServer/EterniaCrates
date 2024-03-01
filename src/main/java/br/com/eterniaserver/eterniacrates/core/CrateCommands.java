@@ -51,7 +51,7 @@ public class CrateCommands extends BaseCommand {
 
     @Subcommand("%CRATE_KEY")
     @Syntax("%CRATE_KEY_SYNTAX")
-    @CommandCompletion("@players caixa 1")
+    @CommandCompletion("@players @crates 1")
     @Description("%CRATE_KEY_DESCRIPTION")
     @CommandPermission("%CRATE_KEY_PERM")
     public void onGiveKey(CommandSender sender, OnlinePlayer onlinePlayer, String cratesName, int amount) {
@@ -102,6 +102,7 @@ public class CrateCommands extends BaseCommand {
     @Subcommand("%CRATE_COOLDOWN")
     @Syntax("%CRATE_COOLDOWN_SYNTAX")
     @CommandPermission("%CRATE_COOLDOWN_PERM")
+    @CommandCompletion("@crates 30")
     @Description("%CRATE_COOLDOWN_DESCRIPTION")
     public void onCrateCooldown(CommandSender player, String cratesName, Integer cooldown) {
         cratesName = cratesName.toLowerCase();
@@ -123,6 +124,7 @@ public class CrateCommands extends BaseCommand {
     @Subcommand("%CRATE_LOCATION")
     @Syntax("%CRATE_LOCATION_SYNTAX")
     @CommandPermission("%CRATE_LOCATION_PERM")
+    @CommandCompletion("@crates")
     @Description("%CRATE_LOCATION_DESCRIPTION")
     public void onCrateLocation(Player player, String cratesName) {
         cratesName = cratesName.toLowerCase();
@@ -141,6 +143,7 @@ public class CrateCommands extends BaseCommand {
     @Syntax("%CRATE_PUT_ITEM_SYNTAX")
     @CommandPermission("%CRATE_PUT_ITEM_PERM")
     @Description("%CRATE_PUT_ITEM_DESCRIPTION")
+    @CommandCompletion("@crates 0.2")
     public void onCrateAddItem(Player player, String cratesName, @Conditions("limits:min=0,max=1") Double chance) {
         cratesName = cratesName.toLowerCase();
         if (!EterniaCrates.getCrateAPI().existsCrate(cratesName)) {
@@ -169,6 +172,7 @@ public class CrateCommands extends BaseCommand {
     @Subcommand("%CRATE_LIST_ITEMS")
     @Syntax("%CRATE_LIST_ITEMS_SYNTAX")
     @CommandPermission("%CRATE_LIST_ITEMS_PERM")
+    @CommandCompletion("@crates")
     @Description("%CRATE_LIST_ITEMS_DESCRIPTION")
     public void listItems(Player player, String cratesName) {
         cratesName = cratesName.toLowerCase();
@@ -200,6 +204,7 @@ public class CrateCommands extends BaseCommand {
     @Subcommand("%CRATE_SET_KEY")
     @Syntax("%CRATE_SET_KEY_SYNTAX")
     @CommandPermission("%CRATE_SET_KEY_PERM")
+    @CommandCompletion("@crates")
     @Description("%CRATE_SET_KEY_DESCRIPTION")
     public void onCrateSetKey(Player player, String cratesName) {
         cratesName = cratesName.toLowerCase();
@@ -237,6 +242,7 @@ public class CrateCommands extends BaseCommand {
     @Subcommand("%CRATE_NBT")
     @CommandPermission("%CRATE_NBT_PERM")
     @Syntax("%CRATE_NBT_SYNTAX")
+    @CommandCompletion("@crates")
     @Description("%CRATE_NBT_DESCRIPTION")
     public void onGetNBT(Player player, String cratesName) {
         cratesName = cratesName.toLowerCase();
@@ -253,6 +259,7 @@ public class CrateCommands extends BaseCommand {
     @Subcommand("%CRATE_REMOVE_ITEM")
     @Syntax("%CRATE_REMOVE_ITEM_SYNTAX")
     @CommandPermission("%CRATE_REMOVE_ITEM_PERM")
+    @CommandCompletion("@crates 1")
     @Description("%CRATE_REMOVE_ITEM_DESCRIPTION")
     public void removeItem(CommandSender sender, String cratesName, int id) {
         cratesName = cratesName.toLowerCase();
@@ -275,6 +282,7 @@ public class CrateCommands extends BaseCommand {
     @Subcommand("%CRATE_GIVE_KEY_ALL")
     @Syntax("%CRATE_GIVE_KEY_ALL_SYNTAX")
     @CommandPermission("%CRATE_GIVE_KEY_ALL_PERM")
+    @CommandCompletion("@crates 1")
     @Description("%CRATE_GIVE_KEY_ALL_DESCRIPTION")
     public void onGiveKeyAll(CommandSender sender, String cratesName, int amount) {
         cratesName = cratesName.toLowerCase();
