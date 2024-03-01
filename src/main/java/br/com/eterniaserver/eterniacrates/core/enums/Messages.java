@@ -1,0 +1,28 @@
+package br.com.eterniaserver.eterniacrates.core.enums;
+
+public enum Messages {
+
+    CRATES_PREFIX,
+    CRATE_TITLE,
+    CRATE_ITENS,
+    CRATE_NOT_FOUND,
+    CRATE_KEY_SEND,
+    CRATE_KEY_RECEIVED,
+    CRATE_ALREADY_EXIST,
+    CRATE_CREATED,
+    CRATE_SET_COOLDOWN,
+    CRATE_LOCATION,
+    CRATE_ITEM_PUT,
+    CRATE_DELETED,
+    NO_AIR,
+    CRATE_KEY_SETTED,
+    KEY_NBT,
+    NO_ITEM,
+    ITEM_REMOVED,
+    IN_COOLDOWN,
+    ITEM_FAIL,
+    ITEM_WINNER,
+    ITEM_NO_KEY,
+    CRATE_LOC_SET
+
+}

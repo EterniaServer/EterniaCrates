@@ -1,9 +1,9 @@
-main: br.com.eterniaserver.eterniacrates.EterniaCrates
-
 name: EterniaCrates
+main: br.com.eterniaserver.eterniacrates.EterniaCrates
 version: "${version}"
 dev-url: https://github.com/EterniaServer/EterniaCrates
 author: Yuri Nogueira
 description: A basic crate plugin
+website: www.eterniaserver.com.br
 api-version: "1.20"
 depend: [EterniaLib]

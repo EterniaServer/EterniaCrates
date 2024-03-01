@@ -1,30 +1,37 @@
 package br.com.eterniaserver.eterniacrates;
 
-import br.com.eterniaserver.eterniacrates.configurations.configs.ConfigsCfg;
-import br.com.eterniaserver.eterniacrates.configurations.configs.TableCfg;
-import br.com.eterniaserver.eterniacrates.configurations.locales.CommandsLocaleCfg;
-import br.com.eterniaserver.eterniacrates.configurations.locales.MsgCfg;
-import br.com.eterniaserver.eterniacrates.handlers.PlayerHandler;
+import br.com.eterniaserver.eterniacrates.api.CrateAPI;
+import br.com.eterniaserver.eterniacrates.core.enums.Strings;
 
+import lombok.Getter;
+import lombok.Setter;
+
+import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
+
 
 public class EterniaCrates extends JavaPlugin {
 
-    public static final ConfigsCfg configs = new ConfigsCfg();
-    public static final CommandsLocaleCfg commands = new CommandsLocaleCfg();
-    public static final MsgCfg msg = new MsgCfg();
+    private final String[] strings = new String[Strings.values().length];
 
+    @Getter
+    private final NamespacedKey crateKey = NamespacedKey.minecraft(Constants.ETERNIA_CRATE);
+
+    @Getter
+    @Setter
+    private static CrateAPI crateAPI;
+
+    public String[] strings() {
+        return strings;
+    }
+
+    public String getString(Strings stringEntry) {
+        return strings[stringEntry.ordinal()];
+    }
 
     @Override
     public void onEnable() {
-
-        new TableCfg();
-        new Managers();
-
-        this.getServer().getPluginManager().registerEvents(new PlayerHandler(), this);
-
-        
-
+        new Manager(this);
     }
 
 }

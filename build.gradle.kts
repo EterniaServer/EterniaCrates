@@ -30,7 +30,7 @@ sonarqube  {
 }
 
 group = "br.com.eterniaserver"
-version = "4.0.0"
+version = "4.3.0"
 
 repositories {
     mavenCentral()
@@ -65,7 +65,7 @@ java {
 
 dependencies {
     compileOnly("io.papermc.paper", "paper-api", "1.20.4-R0.1-SNAPSHOT")
-    compileOnly("br.com.eterniaserver", "eternialib", "4.0.6")
+    compileOnly("br.com.eterniaserver", "eternialib", "4.3.0")
     implementation("org.bstats", "bstats-bukkit", "3.0.0")
     testImplementation("io.papermc.paper", "paper-api", "1.20.4-R0.1-SNAPSHOT")
     testImplementation("br.com.eterniaserver", "eternialib", "4.0.6")
