@@ -34,7 +34,7 @@ public class PlayerHandler implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler (priority = EventPriority.HIGHEST)
     public void onPlayerInteract(PlayerInteractEvent event) {
         Action action = event.getAction();
         Block block = event.getClickedBlock();
@@ -52,7 +52,9 @@ public class PlayerHandler implements Listener {
             if (crateName.isEmpty() || !EterniaCrates.getCrateAPI().existsCrate(crateName)) {
                 if (playerItem.getType() != Material.AIR) {
                     PersistentDataContainer itemContainer = playerItem.getItemMeta().getPersistentDataContainer();
-                    event.setCancelled(itemContainer.has(plugin.getCrateKey()));
+                    if (itemContainer.has(plugin.getCrateKey())) {
+                        event.setCancelled(true);
+                    }
                 } else if (EterniaCrates.getCrateAPI().hasCachedLoc(player.getUniqueId())) {
                     crateName = EterniaCrates.getCrateAPI().getCachedLoc(player.getUniqueId());
                     dataContainer.set(plugin.getCrateKey(), PersistentDataType.STRING, crateName);
@@ -74,7 +76,9 @@ public class PlayerHandler implements Listener {
             event.setCancelled(true);
         } else if (playerItem.getType() != Material.AIR) {
             PersistentDataContainer itemContainer = playerItem.getItemMeta().getPersistentDataContainer();
-            event.setCancelled(itemContainer.has(plugin.getCrateKey()));
+            if (itemContainer.has(plugin.getCrateKey())) {
+                event.setCancelled(true);
+            }
         }
     }
 

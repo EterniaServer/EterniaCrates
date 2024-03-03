@@ -1,6 +1,7 @@
 package br.com.eterniaserver.eterniacrates;
 
 import br.com.eterniaserver.acf.ConditionFailedException;
+import br.com.eterniaserver.eterniacrates.core.PlayerHandler;
 import br.com.eterniaserver.eterniacrates.core.configurations.CommandConfiguration;
 import br.com.eterniaserver.eterniacrates.core.configurations.CrateConfiguration;
 import br.com.eterniaserver.eterniacrates.core.configurations.MessagesConfiguration;
@@ -17,7 +18,11 @@ import java.util.List;
 
 public class Manager {
 
+    private final EterniaCrates plugin;
+
     public Manager(EterniaCrates plugin) {
+        this.plugin = plugin;
+
         CrateImp crateImp = new CrateImp(plugin);
 
         CrateConfiguration crateConfiguration = new CrateConfiguration(plugin);
@@ -58,6 +63,7 @@ public class Manager {
 
         loadConditions();
         loadCompletions();
+        loadListeners();
         registerCommands(plugin);
     }
 
@@ -81,6 +87,10 @@ public class Manager {
 
     private void registerCommands(EterniaCrates plugin) {
         EterniaLib.getCmdManager().registerCommand(new CrateCommands(plugin));
+    }
+
+    private void loadListeners() {
+        plugin.getServer().getPluginManager().registerEvents(new PlayerHandler(plugin), plugin);
     }
 
 }
