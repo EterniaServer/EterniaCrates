@@ -38,7 +38,7 @@ public class PlayerHandler implements Listener {
     public void onPlayerInteract(PlayerInteractEvent event) {
         Action action = event.getAction();
         Block block = event.getClickedBlock();
-        if (action.equals(Action.LEFT_CLICK_AIR) || action.equals(Action.PHYSICAL) || action.equals(Action.RIGHT_CLICK_AIR) || block == null) {
+        if (action.equals(Action.LEFT_CLICK_AIR) || action.equals(Action.RIGHT_CLICK_AIR) || block == null) {
             return;
         }
 
@@ -58,6 +58,7 @@ public class PlayerHandler implements Listener {
                 } else if (EterniaCrates.getCrateAPI().hasCachedLoc(player.getUniqueId())) {
                     crateName = EterniaCrates.getCrateAPI().getCachedLoc(player.getUniqueId());
                     dataContainer.set(plugin.getCrateKey(), PersistentDataType.STRING, crateName);
+                    chest.update();
 
                     EterniaLib.getChatCommons().sendMessage(player, Messages.CRATE_LOC_SET);
                     event.setCancelled(true);

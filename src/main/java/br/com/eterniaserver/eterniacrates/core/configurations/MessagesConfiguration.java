@@ -129,7 +129,7 @@ public class MessagesConfiguration implements MsgConfiguration<Messages> {
                 "Você não pode abrir essa caixa no momento#555555."
         );
         addMessage(Messages.ITEM_FAIL,
-                "Que pena#555555, você não ganhou nada#555555."
+                "Que pena#555555,&7 você não ganhou nada#555555."
         );
         addMessage(Messages.ITEM_NO_KEY,
                 "Você não possui uma chave#555555."
