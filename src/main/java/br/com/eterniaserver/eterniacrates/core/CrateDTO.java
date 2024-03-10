@@ -62,7 +62,7 @@ public class CrateDTO {
     }
 
     public void removeItem(Integer id) {
-        items.removeIf(i -> i.getId().isPresent() &&i.getId().get().equals(id));
+        items.removeIf(i -> i.getId().isPresent() && i.getId().get().equals(id));
     }
 
     public void addItem(ItemStack itemStack, Double chance) {

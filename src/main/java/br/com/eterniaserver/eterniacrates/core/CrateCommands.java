@@ -270,7 +270,7 @@ public class CrateCommands extends BaseCommand {
         }
 
         CrateDTO crateDTO = EterniaCrates.getCrateAPI().read(cratesName);
-        if (crateDTO.containsItem(id)) {
+        if (!crateDTO.containsItem(id)) {
             EterniaLib.getChatCommons().sendMessage(sender, Messages.NO_ITEM);
             return;
         }
