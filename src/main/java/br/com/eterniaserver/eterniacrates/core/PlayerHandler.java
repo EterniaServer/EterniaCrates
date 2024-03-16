@@ -34,7 +34,7 @@ public class PlayerHandler implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler (priority = EventPriority.LOWEST)
     public void onPlayerInteract(PlayerInteractEvent event) {
         Action action = event.getAction();
         Block block = event.getClickedBlock();
