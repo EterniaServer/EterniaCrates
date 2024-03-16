@@ -52,7 +52,7 @@ public class CrateDTO {
     }
 
     public void setItems(List<CrateItemDTO> items) {
-        items.sort(Comparator.comparing(CrateItemDTO::getChance));
+        items.sort(Comparator.comparing(CrateItemDTO::getChance).reversed());
 
         this.items = items;
     }
@@ -69,7 +69,7 @@ public class CrateDTO {
         CrateItemDTO crateItemDTO = new CrateItemDTO(itemStack, chance);
 
         items.add(crateItemDTO);
-        items.sort(Comparator.comparing(CrateItemDTO::getChance));
+        items.sort(Comparator.comparing(CrateItemDTO::getChance).reversed());
     }
 
     public void displayMessage(EterniaCrates plugin, Player player) {
